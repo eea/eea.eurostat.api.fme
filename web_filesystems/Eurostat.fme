@@ -1,0 +1,6 @@
+#GUI LOOKUP_CHOICE AGENCY Eurostat,ESTAT%DG<space>COMP,COMP%DG<space>EMPL,EMPL%DG<space>GROW,GROW Agency:
+#DEFAULT_VALUE AGENCY Eurostat
+
+GUI WEB_SELECT_OR_ATTR __eurostat_category_scheme SERVICE:eea.eurostat.Eurostat%MODULE:fmepy_eurostat.categorization%KEYVALS:AGENCY,ESTAT,mode,CategoryScheme%SHOWID%SELECTION:ITEMS_ONLY,NO_ROOT%NO_SEARCH%SINGLEDEPTH%ITEM_ICON::/images/bookmark.png Category Scheme:
+
+GUI WEB_SELECT_OR_ATTR __eurostat_category SERVICE:eea.eurostat.Eurostat%DEPENDENT_PARAMETERS:__eurostat_category_scheme%MODULE:fmepy_eurostat.categorization%KEYVALS:AGENCY,ESTAT,mode,Category%PROMPTFORTITLE%SHOWID%SELECTION:CONTAINERS_ONLY%NO_SEARCH%ITEM_ICON::/images/bucket.png Category:

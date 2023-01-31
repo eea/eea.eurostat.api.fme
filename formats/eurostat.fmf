@@ -1,0 +1,192 @@
+DEFAULT_MACRO FORMAT_SHORT_NAME EEA.EUROSTAT.EUROSTAT
+SOURCE_READER EEA.EUROSTAT.EUROSTAT                                             \
+    -_AGENCY "$(AGENCY)"                                                        \
+    EXPOSED_ATTRS  "$($(FORMAT_SHORT_NAME)_EXPOSE_FORMAT_ATTRS)"
+
+FORMAT_NAME EEA.EUROSTAT.EUROSTAT
+FORMAT_TYPE PYTHON
+PLUGIN_NAME fmepy_eurostat
+FME_PYTHON_MINIMUM_VERSION 3.7
+
+SOURCE_PREAMBLE
+END_SOURCE_PREAMBLE
+
+WORKBENCH_SOURCE_PREAMBLE
+END_WORKBENCH_SOURCE_PREAMBLE
+
+SOURCE_SETTINGS
+GUI NAMEDGROUP ASDF_GROUP AGENCY Asdf
+DEFAULT_VALUE AGENCY ESTAT
+GUI LOOKUP_CHOICE AGENCY Eurostat,ESTAT%DG<space>COMP,COMP%DG<space>EMPL,EMPL%DG<space>GROW,GROW Agency:
+END_SOURCE_SETTINGS
+
+! No dataset.
+SOURCE_DATASET "NOT_USED"
+
+DESTINATION_PREAMBLE
+END_DESTINATION_PREAMBLE
+
+
+DESTINATION_SETTINGS
+
+END_DESTINATION_SETTINGS
+
+! No dataset.
+DESTINATION_DATASET \"\"
+
+PREAMBLE
+FME_MINIMUM_BUILD 21222
+END_PREAMBLE
+
+GEOMETRY_TYPE_FIELD eurostat_type
+GENERICIZE_GEOMTYPE_ATTR_NAME eurostat_type
+
+GEOM_MAP eurostat_none               fme_no_geom
+GEOM_MAP fme_no_map                  fme_text
+GEOM_MAP fme_no_map                  fme_point
+GEOM_MAP fme_no_map                  fme_line
+GEOM_MAP fme_no_map                  fme_polygon
+GEOM_MAP fme_no_map                  fme_text
+GEOM_MAP fme_no_map                  fme_ellipse
+GEOM_MAP fme_no_map                  fme_arc
+GEOM_MAP fme_no_map                  fme_rectangle
+GEOM_MAP fme_no_map                  fme_rounded_rectangle
+GEOM_MAP fme_no_map                  fme_point
+GEOM_MAP fme_no_map                  fme_line
+GEOM_MAP fme_no_map                  fme_polygon
+GEOM_MAP fme_no_map                  fme_raster
+GEOM_MAP fme_no_map                  fme_solid
+GEOM_MAP fme_no_map                  fme_surface
+GEOM_MAP fme_no_map                  fme_point_cloud
+
+ATTR_TYPE_MAP                                                                 \
+    TEXT                  fme_buffer                                          \
+    TEXT                  fme_binarybuffer                                    \
+    TEXT                  fme_xml                                             \
+    TEXT                  fme_json                                            \
+    DATETIME              fme_datetime                                        \
+    DATE                  fme_date                                            \
+    TEXT                  fme_time                                            \
+    TEXT                  fme_char(width)                                     \
+    text-                 fme_binary(width)                                   \
+    TEXT                  fme_varchar(width)                                  \
+    text-                 fme_varbinary(width)                                \
+    POINT                 fme_json                                            \
+    LINESTRING            fme_json                                            \
+    POLYGON               fme_json                                            \
+    MULTIPOINT            fme_json                                            \
+    MULTILINESTRING       fme_json                                            \
+    MULTIPOLYGON          fme_json                                            \
+    NUMBER_INTEGER        fme_int32                                           \
+    NUMBER_INTEGER        fme_uint32                                          \
+    NUMBER_INTEGER        fme_int64                                           \
+    NUMBER_INTEGER        fme_uint64                                          \
+    NUMBER_DECIMAL        fme_real32                                          \
+    NUMBER_DECIMAL        fme_real64                                          \
+    NUMBER_INTEGER        fme_int16                                           \
+    NUMBER_INTEGER        fme_uint16                                          \
+    NUMBER_INTEGER        fme_int8                                            \
+    NUMBER_INTEGER        fme_uint8                                           \
+    NUMBER_DECIMAL        fme_decimal(width,decimal)                          \
+    CODELIST              fme_buffer                                          \
+    MULTISELECT_CODELIST  fme_buffer                                          \
+    TEXTAREA              fme_buffer                                          \
+    EMAIL                 fme_buffer                                          \
+    URL                   fme_buffer                                          \
+    PHONE                 fme_buffer                                          \
+    LINK                  fme_buffer                                          \
+    ATTACHMENT            fme_buffer
+
+ATTRIBUTE_CASE ANY
+FEATURE_TYPE_CASE ANY
+
+ATTRIBUTE_LENGTH 512
+FEATURE_TYPE_LENGTH 512
+! BUG#77117 Fixed feature type names with '.' not being truncated properly
+FEATURE_TYPE_LENGTH_INCLUDES_PREFIX dummyValue
+
+! Allow setting an attribute as the row identifier.
+WORKBENCH_ATTR_INDEX_TYPES RowID
+
+
+MACRO SourceExposableAttrs                                                    \
+   eurostat_country_code                TEXT
+
+MACRO DestExposableAttrs
+
+INCLUDE [if {"$(FMEGEN_DIRECTION)" == "Source"}                               \
+         {                                                                    \
+            puts {MACRO DestExposableAttrs};                                  \
+         }                                                                    \
+         else                                                                 \
+         {                                                                    \
+            puts {MACRO SourceExposableAttrs};                                \
+         }]
+
+WORKBENCH_EXPOSABLE_ATTRIBUTES                                                \
+   $(SourceExposableAttrs)                                                    \
+   $(DestExposableAttrs)                                                      \
+   eurostat_type                         TEXT
+
+CORR_LINE_TEMPLATE {FME_GEN_GROUP_NAME} eurostat_type {FME_GEN_GEOMETRY}
+DEF_LINE_BREAK GEOM_CHANGE
+
+DEFAULT_MACRO eurostat_CONFIGURATION_DEFLINE_TEMPLATE                        \
+    fme_feature_operation INSERT                                              \
+    fme_table_handling    USE_EXISTING
+
+
+
+
+
+! Specify the DEF line template for format feature types,
+! including options at the feature type level.
+! TODO: Update or remove example feature type option and group below.
+! DONE: I (peter) believe the template had the gui options in the wrong place...
+INCLUDE [if {"$(FMEGEN_DIRECTION)" == "Source"} {                             \
+    puts {                                                                    \
+        DEF_LINE_TEMPLATE {FME_GEN_GROUP_NAME}                                \
+            eurostat_type {FME_GEN_GEOMETRY}                                  \
+    };                                                                        \
+    } else {                                                                  \
+        puts {                                                                \
+            DEF_LINE_TEMPLATE {FME_GEN_GROUP_NAME}                            \
+            eurostat_type {FME_GEN_GEOMETRY}                                  \
+        };                                                                    \
+    }]
+
+INCLUDE [if {"$(FMEGEN_DIRECTION)" == "Source"} {                             \
+    puts { WORKBENCH_DEFLINE_PARMS                                            \
+    "GUI NAMEDGROUP option_group eurostat_where_clause Options" ""           \
+    "GUI OPTIONAL WHOLE_LINE TEXT_EDIT_SQL_CFG eurostat_where_clause MODE,WHERE WHERE Clause" "" \
+    };                                                                        \
+} else {                                                                      \
+    puts { WORKBENCH_DEFLINE_PARMS                                            \
+    "GUI OPTIONAL TEXT eurostat_geom_column Spatial Column:" ""               \
+    };                                                                        \
+}]
+
+! -----------------------------------------------------------------------------
+! The list of words that are not allowed to be attributes
+! TODO: All format attributes should be included here.
+DEST_ILLEGAL_ATTR_LIST                                   \
+    eurostat_type text                                   \
+    eurostat_geom_column text                            \
+    eurostat_country_code text                           \
+    eurostat_where_clause text                           \
+    eurostat_validate_geom_type text                     \
+    $(CONFIGURATION_ILLEGAL_ATTR_LIST)
+
+! ------------------------------------------------------------------------------
+FORMAT_PARAMETER NETWORK_AUTHENTICATION NO
+FORMAT_PARAMETER NETWORK_PROXY NO
+
+FORMAT_PARAMETER FEATURE_TYPE_NAME Table
+FORMAT_PARAMETER FEATURE_TYPE_DEFAULT_NAME Table1
+
+!-------------------------------------------------------------------------------
+! ALL: Reader always returns all available attributes for the feature type.
+! DEFLINE: Reader checks DEF lines for user attributes defined on the feature type,
+!  and only returns those attributes. Useful for readers that can improve
+!  performance by selectively reading attributes.
+FORMAT_PARAMETER ATTRIBUTE_READING DEFLINE
