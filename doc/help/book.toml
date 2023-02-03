@@ -1,0 +1,6 @@
+[book]
+authors = ["Peter Segerstedt"]
+language = "en"
+multilingual = false
+src = "src"
+title = "Help Documentation for the Eurostat FME Package"
