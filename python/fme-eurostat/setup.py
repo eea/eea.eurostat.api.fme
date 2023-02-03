@@ -30,4 +30,5 @@ setup(
     ],
     zip_safe=False,
     install_requires=REQUIRES,
+    package_data={'': ['xfmap/*.xmp']},
 )
