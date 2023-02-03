@@ -8,6 +8,8 @@
         </mapping>
         <mapping match="s:Categorisation">
         </mapping>
+        <mapping match="s:Dataflow">
+        </mapping>
     </reference-map>
     <reference-content-map>
         <mapping match="s:CategoryScheme">
@@ -49,6 +51,18 @@
                 </reference>
             </references>
         </mapping>
+        <mapping match="s:Dataflow/c:Name[@xml:lang='en']">
+            <references persist="true">
+                <reference>
+                    <name>
+                        <literal expr="dataflow.name"/>
+                    </name>
+                    <value>
+                        <extract expr="."/>
+                    </value>
+                </reference>
+            </references>
+        </mapping>
         <mapping match="s:CategoryScheme/c:Name[@xml:lang='en']">
             <references persist="true">
                 <reference>
@@ -76,6 +90,29 @@
     </reference-content-map>
 
     <feature-map multi-feature-construction="true">
+        <mapping match="s:Dataflow">
+            <feature-type>
+                <literal expr="Dataflow"/>
+            </feature-type>
+            <attributes>
+                <attribute>
+                    <name>
+                        <literal expr="Dataflow.id"/>
+                    </name>
+                    <value>
+                        <extract expr="@id"/>
+                    </value>
+                </attribute>
+                <attribute>
+                    <name>
+                        <literal expr="Dataflow.name"/>
+                    </name>
+                    <value>
+                        <refexpr expr="dataflow.name"/>
+                    </value>
+                </attribute>
+            </attributes>
+        </mapping>
         <mapping match="s:CategoryScheme">
             <feature-type>
                 <literal expr="CategoryScheme"/>

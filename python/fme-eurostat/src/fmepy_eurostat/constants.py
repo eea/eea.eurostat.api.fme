@@ -67,3 +67,9 @@ class Agency(Enum):
     @property
     def category_schemes_url(self):
         return f'{self.base_uri}/sdmx/2.1/categoryscheme/{self.name}/all'
+    @property
+    def categorisations_url(self):
+        return f'{self.base_uri}/sdmx/2.1/categorisation/{self.name}/all'
+    @property
+    def dataflows_url(self):
+        return f'{self.base_uri}/sdmx/2.1/dataflow/{self.name}/all?detail=allstubs'
