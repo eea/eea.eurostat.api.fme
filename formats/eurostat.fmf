@@ -1,27 +1,140 @@
 DEFAULT_MACRO FORMAT_SHORT_NAME EEA.EUROSTAT.EUROSTAT
-SOURCE_READER EEA.EUROSTAT.EUROSTAT                                             \
-    -_AGENCY "$(AGENCY)"                                                        \
-    EXPOSED_ATTRS  "$($(FORMAT_SHORT_NAME)_EXPOSE_FORMAT_ATTRS)"
+
+DEFAULT_MACRO FEATURE_TYPE_NAME FILE_NAME
+DEFAULT_MACRO DELIMITER <comma>
+DEFAULT_MACRO FIELD_NAMES_LINE 1
+DEFAULT_MACRO DATA_START_LINE 2
+DEFAULT_MACRO READ_SKIPPED_LINES No
+DEFAULT_MACRO SKIP_DUPLICATE_DELIMITERS No
+DEFAULT_MACRO FIELD_QUALIFIER_CHARACTER <quote>
+DEFAULT_MACRO FIELD_QUALIFIER_ESCAPE_CHARACTER <quote>
+DEFAULT_MACRO TRIM_FIELD_NAME_QUALIFIERS Yes
+DEFAULT_MACRO CASE_SENSITIVE_FIELD_NAMES Yes
+DEFAULT_MACRO ENFORCE_STRICT_SCHEMA No
+DEFAULT_MACRO TRIM_FIELD_VALUE_QUALIFIERS Yes
+DEFAULT_MACRO ENCODING UTF-8
+DEFAULT_MACRO PRESERVE_SOURCE_ENCODING No
+DEFAULT_MACRO SCAN_MAX_ROWS 10000
+DEFAULT_MACRO SCAN_TYPES Yes
+DEFAULT_MACRO SCAN_ADDITIONAL_FIELDS No
+DEFAULT_MACRO TYPE_ATTRIBUTE_HANDLING STANDARD_TYPES
+DEFAULT_MACRO STRING_TYPE_ATTRIBUTE_HANDLING STANDARD_TYPES
+DEFAULT_MACRO DATE_INPUT_FORMAT %d/%m/%y2099 %H:%M:%S$
+DEFAULT_MACRO DATE_OUTPUT_FORMAT %d/%m/%y2099 %H:%M:%S$
+DEFAULT_MACRO SCHEMA
+DEFAULT_MACRO USE_CUSTOM_SCHEMA No
+DEFAULT_MACRO TRIM_FIELD_NAME_WHITESPACE Yes
+DEFAULT_MACRO TRIM_FEATURE_TYPE_NAME Yes
+DEFAULT_MACRO REPLACE_ATTR_NAME_INVALID_CHARS No
+DEFAULT_MACRO READ_EMPTY_VALUES_AS Null
+
+! Syntax: SOURCE_READER <READER NAME> [<PARM NAME> <PARM_VALUE>] [[-]<Schema Keyword> <Schema Macro|Constant Value>]
+! This directive specifies the name of the reader used to drive the generation of
+! a mapping file/workspace. It also is where parameters specific to how the reader
+! is used are specified.
+
+DEFAULT_MACRO SUPPORTED_READER_ARCHIVE_EXTENSIONS csv.gz,txt.gz
+
+SOURCE_READER CSV2 \
+   -FEATURE_TYPE_NAME "$(FEATURE_TYPE_NAME)" \
+   -DELIMITER "$(DELIMITER)" \
+   -FIELD_NAMES_LINE "$(FIELD_NAMES_LINE)" \
+   -DATA_START_LINE "$(DATA_START_LINE)" \
+   -READ_SKIPPED_LINES "$(READ_SKIPPED_LINES)" \
+   -SKIP_DUPLICATE_DELIMITERS "$(SKIP_DUPLICATE_DELIMITERS)" \
+   -FIELD_QUALIFIER_CHARACTER "$(FIELD_QUALIFIER_CHARACTER)" \
+   -FIELD_QUALIFIER_ESCAPE_CHARACTER "$(FIELD_QUALIFIER_ESCAPE_CHARACTER)" \
+   -TRIM_FIELD_NAME_QUALIFIERS "$(TRIM_FIELD_NAME_QUALIFIERS)" \
+   -CASE_SENSITIVE_FIELD_NAMES "$(CASE_SENSITIVE_FIELD_NAMES)" \
+   -CASE_ENFORCE_STRICT_SCHEMA "$(ENFORCE_STRICT_SCHEMA)" \
+   -TRIM_FIELD_VALUE_QUALIFIERS "$(TRIM_FIELD_VALUE_QUALIFIERS)" \
+   -ENCODING "$(ENCODING)" \
+   -PRESERVE_SOURCE_ENCODING "$(PRESERVE_SOURCE_ENCODING)" \
+   -SCAN_MAX_ROWS "$(SCAN_MAX_ROWS)" \
+   -SCAN_TYPES "$(SCAN_TYPES)" \
+   -SCAN_ADDITIONAL_FIELDS "$(SCAN_ADDITIONAL_FIELDS)" \
+   -DATE_INPUT_FORMAT "$(DATE_INPUT_FORMAT)" \
+   -SCHEMA "$(SCHEMA)" \
+   -TRIM_FIELD_NAME_WHITESPACE "$(TRIM_FIELD_NAME_WHITESPACE)" \
+   -TRIM_FEATURE_TYPE_NAME "$(TRIM_FEATURE_TYPE_NAME)" \
+   -REPLACE_ATTR_NAME_INVALID_CHARS "$(REPLACE_ATTR_NAME_INVALID_CHARS)" \
+   -READ_EMPTY_VALUES_AS "$(READ_EMPTY_VALUES_AS)" \
+   -TYPE_ATTRIBUTE_HANDLING "$(TYPE_ATTRIBUTE_HANDLING)" \
+   -STRING_TYPE_ATTRIBUTE_HANDLING "$(STRING_TYPE_ATTRIBUTE_HANDLING)" \
+   EXPOSED_ATTRS "$($(FORMAT_SHORT_NAME)_EXPOSE_FORMAT_ATTRS)"
+
 
 FORMAT_NAME EEA.EUROSTAT.EUROSTAT
-FORMAT_TYPE PYTHON
-PLUGIN_NAME fmepy_eurostat
-FME_PYTHON_MINIMUM_VERSION 3.7
+FORMAT_TYPE DYNAMIC
+DYNAMIC_LIBRARY csv2
+
+
+GEOMETRY_ATTRIBUTE_PREFIX csv_type
+
+SCAN_PREFER_UNSIGNED_TYPES_FOR_INTEGERS yes
+
+SCAN_FOR_INTEGER_CONTAINER_TYPES yes
+
+! ----------------------------------------------------------------------
+! Added support for boolean type PR#13332
+SCAN_SUPPORT_BOOL_TYPE yes
+
+! ----------------------------------------------------------------------
+! Added support for null types PR#38295
+SCAN_SUPPORT_NULL_AND_EMPTY_TYPES yes
+
+
+SOURCE_DATASET \"$[SourceDataset]\"
 
 SOURCE_PREAMBLE
+GUI WEB_SELECT SourceDataset SERVICE:eea.eurostat.Eurostat%MODULE:fmepy_eurostat.catalog%KEYVALS:AGENCY,ESTAT%PROMPTFORTITLE%SHOWID%SELECTION:ITEMS_ONLY%NO_SEARCH%ITEM_ICON::/images/bucket.png Dataflow:
+__
+
+FACTORY_DEF * TeeFactory                                       \
+    FACTORY_NAME $(WB_KEYWORD)_xyz                             \ 
+    INPUT  FEATURE_TYPE *                                      \
+    OUTPUT FEATURE_TYPE * @SupplyAttributes(eurostat_type,@Value(csv_type))
 END_SOURCE_PREAMBLE
 
 WORKBENCH_SOURCE_PREAMBLE
 END_WORKBENCH_SOURCE_PREAMBLE
 
 SOURCE_SETTINGS
-GUI NAMEDGROUP ASDF_GROUP AGENCY Asdf
-DEFAULT_VALUE AGENCY ESTAT
-GUI LOOKUP_CHOICE AGENCY Eurostat,ESTAT%DG<space>COMP,COMP%DG<space>EMPL,EMPL%DG<space>GROW,GROW Agency:
+
+DEFAULT_VALUE TRIM_FEATURE_TYPE_NAME $(TRIM_FEATURE_TYPE_NAME)
+DEFAULT_VALUE REPLACE_ATTR_NAME_INVALID_CHARS $(REPLACE_ATTR_NAME_INVALID_CHARS)
+DEFAULT_VALUE SUPPORTED_READER_ARCHIVE_EXTENSIONS $(SUPPORTED_READER_ARCHIVE_EXTENSIONS)
+DEFAULT_VALUE FEATURE_TYPE_NAME $(FEATURE_TYPE_NAME)
+DEFAULT_VALUE DELIMITER $(DELIMITER)
+DEFAULT_VALUE FIELD_NAMES_LINE $(FIELD_NAMES_LINE)
+DEFAULT_VALUE SKIP_DUPLICATE_DELIMITERS $(SKIP_DUPLICATE_DELIMITERS)
+DEFAULT_VALUE FIELD_QUALIFIER_CHARACTER $(FIELD_QUALIFIER_CHARACTER)
+DEFAULT_VALUE FIELD_QUALIFIER_ESCAPE_CHARACTER $(FIELD_QUALIFIER_ESCAPE_CHARACTER)
+DEFAULT_VALUE TRIM_FIELD_NAME_QUALIFIERS $(TRIM_FIELD_NAME_QUALIFIERS)
+DEFAULT_VALUE CASE_SENSITIVE_FIELD_NAMES $(CASE_SENSITIVE_FIELD_NAMES)
+DEFAULT_VALUE ENFORCE_STRICT_SCHEMA $(ENFORCE_STRICT_SCHEMA)
+DEFAULT_VALUE TRIM_FIELD_NAME_WHITESPACE $(TRIM_FIELD_NAME_WHITESPACE)
+DEFAULT_VALUE READ_EMPTY_VALUES_AS $(READ_EMPTY_VALUES_AS)
+DEFAULT_VALUE TRIM_FIELD_VALUE_QUALIFIERS $(TRIM_FIELD_VALUE_QUALIFIERS)
+DEFAULT_VALUE ENCODING $(ENCODING)
+DEFAULT_VALUE PRESERVE_SOURCE_ENCODING $(PRESERVE_SOURCE_ENCODING)
+DEFAULT_VALUE READ_SKIPPED_LINES $(READ_SKIPPED_LINES)
+DEFAULT_VALUE SCAN_MAX_ROWS $(SCAN_MAX_ROWS)
+DEFAULT_VALUE SCAN_TYPES $(SCAN_TYPES)
+DEFAULT_VALUE TYPE_ATTRIBUTE_HANDLING $(TYPE_ATTRIBUTE_HANDLING)
+DEFAULT_VALUE STRING_TYPE_ATTRIBUTE_HANDLING $(STRING_TYPE_ATTRIBUTE_HANDLING)
+DEFAULT_VALUE DATE_INPUT_FORMAT $(DATE_INPUT_FORMAT)
+DEFAULT_VALUE SCAN_ADDITIONAL_FIELDS $(SCAN_ADDITIONAL_FIELDS)
+-DEFAULT_VALUE USE_CUSTOM_SCHEMA $(USE_CUSTOM_SCHEMA)
+DEFAULT_VALUE QUERY_FEATURE_TYPES_FOR_MERGE_FILTERS Yes
+DEFAULT_VALUE CHUNK_SIZE 100000
+DEFAULT_VALUE EXPOSE_ATTRS_GROUP $(EXPOSE_ATTRS_GROUP)
+-GUI DISCLOSUREGROUP EXPOSE_ATTRS_GROUP $(FORMAT_SHORT_NAME)_EXPOSE_FORMAT_ATTRS Schema Attributes
+-DEFAULT_VALUE $(FORMAT_SHORT_NAME)_EXPOSE_FORMAT_ATTRS ""
+-GUI OPTIONAL EXPOSED_ATTRS $(FORMAT_SHORT_NAME)_EXPOSE_FORMAT_ATTRS $(FORMAT_SHORT_NAME)%$(FMEGEN_DIRECTION) Additional Attributes to Expose:
+
 END_SOURCE_SETTINGS
 
-! No dataset.
-SOURCE_DATASET "NOT_USED"
 
 DESTINATION_PREAMBLE
 END_DESTINATION_PREAMBLE
@@ -38,64 +151,63 @@ PREAMBLE
 FME_MINIMUM_BUILD 21222
 END_PREAMBLE
 
-GEOMETRY_TYPE_FIELD eurostat_type
-GENERICIZE_GEOMTYPE_ATTR_NAME eurostat_type
+GEOMETRY_TYPE_FIELD csv_type
+GENERICIZE_GEOMTYPE_ATTR_NAME csv_type
 
-GEOM_MAP eurostat_none               fme_no_geom
-GEOM_MAP fme_no_map                  fme_text
-GEOM_MAP fme_no_map                  fme_point
-GEOM_MAP fme_no_map                  fme_line
-GEOM_MAP fme_no_map                  fme_polygon
-GEOM_MAP fme_no_map                  fme_text
-GEOM_MAP fme_no_map                  fme_ellipse
-GEOM_MAP fme_no_map                  fme_arc
-GEOM_MAP fme_no_map                  fme_rectangle
-GEOM_MAP fme_no_map                  fme_rounded_rectangle
-GEOM_MAP fme_no_map                  fme_point
-GEOM_MAP fme_no_map                  fme_line
-GEOM_MAP fme_no_map                  fme_polygon
-GEOM_MAP fme_no_map                  fme_raster
-GEOM_MAP fme_no_map                  fme_solid
-GEOM_MAP fme_no_map                  fme_surface
-GEOM_MAP fme_no_map                  fme_point_cloud
+GEOM_MAP csv_feature_table fme_feature_table
+GEOM_MAP csv_none          fme_no_geom
+GEOM_MAP csv_point         fme_point
+GEOM_MAP csv_none          fme_line
+GEOM_MAP csv_none          fme_polygon
+GEOM_MAP csv_none          fme_text
+GEOM_MAP csv_none          fme_ellipse
+GEOM_MAP csv_none          fme_arc
+GEOM_MAP csv_none          fme_rectangle
+GEOM_MAP csv_none          fme_rounded_rectangle
+GEOM_MAP fme_no_map        fme_no_geom
+GEOM_MAP fme_no_map        fme_no_map
+GEOM_MAP csv_none          fme_collection
 
-ATTR_TYPE_MAP                                                                 \
-    TEXT                  fme_buffer                                          \
-    TEXT                  fme_binarybuffer                                    \
-    TEXT                  fme_xml                                             \
-    TEXT                  fme_json                                            \
-    DATETIME              fme_datetime                                        \
-    DATE                  fme_date                                            \
-    TEXT                  fme_time                                            \
-    TEXT                  fme_char(width)                                     \
-    text-                 fme_binary(width)                                   \
-    TEXT                  fme_varchar(width)                                  \
-    text-                 fme_varbinary(width)                                \
-    POINT                 fme_json                                            \
-    LINESTRING            fme_json                                            \
-    POLYGON               fme_json                                            \
-    MULTIPOINT            fme_json                                            \
-    MULTILINESTRING       fme_json                                            \
-    MULTIPOLYGON          fme_json                                            \
-    NUMBER_INTEGER        fme_int32                                           \
-    NUMBER_INTEGER        fme_uint32                                          \
-    NUMBER_INTEGER        fme_int64                                           \
-    NUMBER_INTEGER        fme_uint64                                          \
-    NUMBER_DECIMAL        fme_real32                                          \
-    NUMBER_DECIMAL        fme_real64                                          \
-    NUMBER_INTEGER        fme_int16                                           \
-    NUMBER_INTEGER        fme_uint16                                          \
-    NUMBER_INTEGER        fme_int8                                            \
-    NUMBER_INTEGER        fme_uint8                                           \
-    NUMBER_DECIMAL        fme_decimal(width,decimal)                          \
-    CODELIST              fme_buffer                                          \
-    MULTISELECT_CODELIST  fme_buffer                                          \
-    TEXTAREA              fme_buffer                                          \
-    EMAIL                 fme_buffer                                          \
-    URL                   fme_buffer                                          \
-    PHONE                 fme_buffer                                          \
-    LINK                  fme_buffer                                          \
-    ATTACHMENT            fme_buffer
+ATTR_TYPE_MAP                                                     \
+                string                 fme_buffer                 \
+                string                 fme_binarybuffer           \
+                string                 fme_xml                    \
+                string                 fme_json                   \
+                varchar(width)         fme_varchar(width)         \
+                varchar(width)         fme_varbinary(width)       \
+                varchar(width)         fme_char(width)            \
+                varchar(width)         fme_binary(width)          \
+                datetime               fme_datetime               \
+                time                   fme_time                   \
+                date                   fme_date                   \
+                string                 fme_real64                 \
+                real64                 fme_real64                 \
+                x_coordinate           fme_real64                 \
+                y_coordinate           fme_real64                 \
+                z_coordinate           fme_real64                 \
+                string                 fme_real32                 \
+                real32                 fme_real32                 \
+                string                 fme_int64                  \
+                int64                  fme_int64                  \
+                string                 fme_int32                  \
+                int32                  fme_int32                  \
+                string                 fme_int16                  \
+                int16                  fme_int16                  \
+                string                 fme_int8                   \
+                int8                   fme_int8                   \
+                string                 fme_uint64                 \
+                uint64                 fme_uint64                 \
+                string                 fme_uint32                 \
+                uint32                 fme_uint32                 \
+                string                 fme_uint16                 \
+                uint16                 fme_uint16                 \
+                string                 fme_uint8                  \
+                uint8                  fme_uint8                  \
+                string                 fme_boolean                \
+                boolean                fme_boolean                \
+                number(width,decimal)  fme_decimal(width,decimal)
+
+FORMAT_PARAMETER DEFAULT_ATTR_TYPE string
 
 ATTRIBUTE_CASE ANY
 FEATURE_TYPE_CASE ANY
@@ -126,32 +238,22 @@ INCLUDE [if {"$(FMEGEN_DIRECTION)" == "Source"}                               \
 WORKBENCH_EXPOSABLE_ATTRIBUTES                                                \
    $(SourceExposableAttrs)                                                    \
    $(DestExposableAttrs)                                                      \
-   eurostat_type                         TEXT
+   csv_type                         TEXT
 
-CORR_LINE_TEMPLATE {FME_GEN_GROUP_NAME} eurostat_type {FME_GEN_GEOMETRY}
-DEF_LINE_BREAK GEOM_CHANGE
+CORR_LINE_TEMPLATE {FME_GEN_GROUP_NAME} csv_type {FME_GEN_GEOMETRY}
+DEF_LINE_BREAK ATTRIB_CHANGE
 
 DEFAULT_MACRO eurostat_CONFIGURATION_DEFLINE_TEMPLATE                        \
     fme_feature_operation INSERT                                              \
     fme_table_handling    USE_EXISTING
 
-
-
-
-
-! Specify the DEF line template for format feature types,
-! including options at the feature type level.
-! TODO: Update or remove example feature type option and group below.
-! DONE: I (peter) believe the template had the gui options in the wrong place...
 INCLUDE [if {"$(FMEGEN_DIRECTION)" == "Source"} {                             \
-    puts {                                                                    \
-        DEF_LINE_TEMPLATE {FME_GEN_GROUP_NAME}                                \
-            eurostat_type {FME_GEN_GEOMETRY}                                  \
-    };                                                                        \
+        puts {                                                                \
+            DEF_LINE_TEMPLATE {FME_GEN_GROUP_NAME}                            \
+        };                                                                    \
     } else {                                                                  \
         puts {                                                                \
             DEF_LINE_TEMPLATE {FME_GEN_GROUP_NAME}                            \
-            eurostat_type {FME_GEN_GEOMETRY}                                  \
         };                                                                    \
     }]
 
@@ -170,7 +272,7 @@ INCLUDE [if {"$(FMEGEN_DIRECTION)" == "Source"} {                             \
 ! The list of words that are not allowed to be attributes
 ! TODO: All format attributes should be included here.
 DEST_ILLEGAL_ATTR_LIST                                   \
-    eurostat_type text                                   \
+    csv_type text                                   \
     eurostat_geom_column text                            \
     eurostat_country_code text                           \
     eurostat_where_clause text                           \
