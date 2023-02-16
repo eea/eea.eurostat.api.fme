@@ -9,7 +9,7 @@ from ._vendor.webserviceconnector.fmewebfs import (
     FMEWebFilesystem,
     IFMEWebFilesystem
 )
-
+import xml.parsers.expat
 
 import os.path
 XFMAP = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'xfmap', 'data_discovery.xmp')
@@ -350,6 +350,100 @@ class EurostatFilesystem(IFMEWebFilesystem):
             return self.api.info(container_id)
         pass
 
+'''
+
+xmlparser.CurrentByteIndex
+
+    Current byte index in the parser input.
+
+xmlparser.CurrentColumnNumber¶
+
+    Current column number in the parser input.
+
+xmlparser.CurrentLineNumber
+
+    Current line number in the parser input.
+
+'''
+class ExpatCatalogParser:
+    NS_SEP = ' '
+    def __init__(self):
+        self._parser = xml.parsers.expat.ParserCreate(encoding=None, namespace_separator=ExpatCatalogParser.NS_SEP)
+        self._parser.StartElementHandler = self._start_element
+        self._parser.EndElementHandler = self._end_element
+        #p.CharacterDataHandler = char_data
+        self.path = []
+        self._collect_at_path = dict()
+        self._items = []
+    
+    def _start_element(self, name, attributes):
+        ns_uri, local_name = name.split(ExpatCatalogParser.NS_SEP)
+        self.path.append(local_name)
+        if local_name in ['CategoryScheme', 'Category']:
+            path = tuple(self.path)
+            self._collect_at_path[(*path, 'Name')] = []
+            self._collect_at_path[path] = ({
+                [('_', k),k.split(ExpatCatalogParser.NS_SEP)][ExpatCatalogParser.NS_SEP in k][1]: v
+                for k,v in attributes.items()
+            }, [])
+            if 'CategoryScheme' == local_name:
+                self._collect_at_path[(*path, 'Annotations', 'Annotation')] = []
+
+        elif 'Name' == local_name:
+            for k,v in attributes.items():
+                # Some attribute names are prepended with namespace, i.e. xml:lang
+                ns_uri, attr_local_name = [('_', k),k.split(ExpatCatalogParser.NS_SEP)][ExpatCatalogParser.NS_SEP in k]
+                if 'lang' == attr_local_name and 'en' == v:
+                    path = tuple(self.path)
+                    if path in self._collect_at_path:
+                        self._parser.CharacterDataHandler = self._collect_at_path[path].append
+        elif 'Annotation' == local_name:
+            path = tuple(self.path)
+            if path in self._collect_at_path:
+                self._collect_at_path[path].append({})
+                self._collect_at_path[(*path, 'AnnotationType')] = []
+                self._collect_at_path[(*path, 'AnnotationTitle')] = []
+        elif local_name in ['AnnotationType', 'AnnotationTitle']:
+            path = tuple(self.path)
+            if path in self._collect_at_path:
+                self._parser.CharacterDataHandler = self._collect_at_path[path].append
+
+    def _end_element(self, name):
+        ns_uri, local_name = name.split(ExpatCatalogParser.NS_SEP)
+        if local_name in ['CategoryScheme', 'Category']:
+            path = tuple(self.path)
+            name_path = (*path, 'Name')
+            collected_name = ''.join(self._collect_at_path.get(name_path, []))
+            attributes, children = self._collect_at_path.get(path, ({}, []))
+            if 'CategoryScheme' == local_name:
+                for annotation in self._collect_at_path.get((*path, 'Annotations', 'Annotation'), []):
+                    if 'DISSEMINATION_PERSPECTIVE_ID' == annotation.get('AnnotationType'):
+                        attributes['DISSEMINATION_PERSPECTIVE_ID'] = annotation.get('AnnotationTitle')
+            self._items.append((path, collected_name, attributes, children))
+        elif 'AnnotationType' == local_name:
+            path = tuple(self.path)
+            if path in self._collect_at_path:
+                value = ''.join(self._collect_at_path.get(path, []))
+                parent_path = tuple(self.path[:-1])
+                current_annotation = self._collect_at_path.get(parent_path)[-1]
+                current_annotation['AnnotationType'] = value
+        elif 'AnnotationTitle' == local_name:
+            path = tuple(self.path)
+            if path in self._collect_at_path:
+                value = ''.join(self._collect_at_path.get(path, []))
+                parent_path = tuple(self.path[:-1])
+                current_annotation = self._collect_at_path.get(parent_path)[-1]
+                current_annotation['AnnotationTitle'] = value
+
+        expected = self.path.pop()
+        self._parser.CharacterDataHandler = None
+    def parse(self, data, isfinal=False):
+        self._parser.Parse(data, isfinal)
+    def parse_file(self, file):
+        self._parser.ParseFile(file)
+
+            
+
 if __name__ == '__main__':
     def print_item(item, indent=''):
         print(indent, item.id, item.name)
@@ -358,12 +452,15 @@ if __name__ == '__main__':
                 print_item(child, indent + ' ')
     datasets = [
           'https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/categoryscheme/ESTAT/all'
-        , 'https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/categorisation/ESTAT/all'
-        , 'https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/dataflow/ESTAT/all?detail=allstubs'
+        #, 'https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/categorisation/ESTAT/all'
+        #, 'https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/dataflow/ESTAT/all?detail=allstubs'
     ]
-    tree, items = read_catalog(datasets, item_key_func=self.make_dataflow_url_key)
-    for k,v in tree.items():
-        if k.startswith('urn:'): continue
-        print(k,  v.name, len(v.children))
-        print_item(v)
-    print(len(items))
+    for url in datasets:
+        import requests
+        r = requests.get(url)
+        print(r, len(r.text))
+        p = ExpatCatalogParser()
+        p.parse(r.text)
+        for path, collected_name, attributes, children in p._items:
+            #if not 'CategoryScheme' == path[-1]: continue
+            print(path, collected_name, attributes, children)
