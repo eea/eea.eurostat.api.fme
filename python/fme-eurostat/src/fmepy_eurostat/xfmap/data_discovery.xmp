@@ -22,6 +22,40 @@
                         <extract expr="@id"/>
                     </value>
                 </reference>
+                <reference>
+                    <name>
+                        <literal expr="xml_id"/>
+                    </name>
+                    <value>
+                        <literal expr="id-"/>
+                        <matched expr="local-name"/>
+                        <literal expr="-"/>
+                        <matched expr="sequence"/>
+                    </value>
+                </reference>
+            </references>
+        </mapping>
+        <mapping match="s:Category">
+            <references>
+                <reference>
+                    <name>
+                        <literal expr="xml_parent_id"/>
+                    </name>
+                    <value>
+                        <refexpr expr="xml_id" r-stack="previous"/>
+                    </value>
+                </reference>
+                <reference>
+                    <name>
+                        <literal expr="xml_id"/>
+                    </name>
+                    <value>
+                        <literal expr="id-"/>
+                        <matched expr="local-name"/>
+                        <literal expr="-"/>
+                        <matched expr="sequence"/>
+                    </value>
+                </reference>
             </references>
         </mapping>
 
@@ -120,6 +154,14 @@
             <attributes>
                 <attribute>
                     <name>
+                        <literal expr="xml_id"/>
+                    </name>
+                    <value>
+                        <refexpr expr="xml_id"/>
+                    </value>
+                </attribute>
+                <attribute>
+                    <name>
                         <literal expr="CategoryScheme.id"/>
                     </name>
                     <value>
@@ -149,6 +191,22 @@
                 <literal expr="Category"/>
             </feature-type>
             <attributes>
+                <attribute>
+                    <name>
+                        <literal expr="xml_parent_id"/>
+                    </name>
+                    <value>
+                        <refexpr expr="xml_parent_id"/>
+                    </value>
+                </attribute>
+                <attribute>
+                    <name>
+                        <literal expr="xml_id"/>
+                    </name>
+                    <value>
+                        <refexpr expr="xml_id"/>
+                    </value>
+                </attribute>
                 <attribute>
                     <name>
                         <literal expr="CategoryScheme.id"/>
