@@ -18,12 +18,26 @@ XFMAP = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'xfmap', 'data_
 class Item:
     name: str
     id: str
-    key: str
-
 
 @dataclass
 class Container(Item):
     children: List[any]
+
+@dataclass
+class CategoryScheme(Container):
+    xml_id: str
+
+@dataclass
+class Category(Container):
+    urn: str
+    xml_id: str
+    xml_parent_id: str
+
+@dataclass
+class Categorisation:
+    category_urn: str
+    dataflow_key: str
+
 
 session = FMESession()
 
@@ -32,7 +46,7 @@ logger = get_configured_logger('CATALOG')
 
 XFMAP_ENCODED = session.encodeToFMEParsableText(XFMAP)
 
-def read_catalog(datasets, tree=dict(), items=dict(), item_key_func=lambda dataflow_id: dataflow_id):
+def read_catalog(datasets, item_key_func=lambda dataflow_id: dataflow_id):
     """
     Read categorization xml files into tree structure
     """
@@ -74,7 +88,11 @@ def read_catalog(datasets, tree=dict(), items=dict(), item_key_func=lambda dataf
     pipeline.allDone()
     tree = dict()
     items = dict()
+    containers_by_xml_id = dict()
+    containers_by_urn = dict()
+    categorizations = []
     logger.info('Emptying factory pipeline')
+    # Iterating records twice because we need to resolve relations...
     while True:
         feature = pipeline.getOutputFeature()
         if feature is None:
@@ -86,74 +104,62 @@ def read_catalog(datasets, tree=dict(), items=dict(), item_key_func=lambda dataf
         if 'Category' == fme_feature_type:
             if 'T' == feature.getAttribute('CategoryScheme.dissemination_perspective_id'):
                 continue
-            category_scheme_id = feature.getAttribute('CategoryScheme.id')
             id = feature.getAttribute('Category.id')
             urn = feature.getAttribute('Category.urn')
+            xml_id = feature.getAttribute('xml_id')
+            xml_parent_id = feature.getAttribute('xml_parent_id')
             name = feature.getAttribute('Category.name')
-            if not urn.endswith(f'.{id}'):
-                logger.warn('Skipping Category %s with unexpected urn `%s`', id, urn)
-
-            container =  tree.get(urn, Container(name, id, urn, []))
-            if not urn in tree:
-                tree[urn] = container
-            else:
-                container.name = name
-                container.id = id
-
-            parent_key = urn[:-(len(id)+1)]
-            if parent_key.endswith(')'):
-                parent_key = category_scheme_id
-            parent = tree.get(parent_key, Container(None, None, parent_key, [container]))
-            if not parent_key in tree:
-                tree[parent_key] = parent
-            else:
-                parent.children.append(container)
+            children = []
+            category = Category(name, id, children, urn, xml_id, xml_parent_id)
+            containers_by_xml_id[xml_id] = category
+            containers_by_urn[urn] = category
+            tree[id] = category
         elif 'CategoryScheme' == fme_feature_type:
             if 'T' == feature.getAttribute('CategoryScheme.dissemination_perspective_id'):
                 continue
             id = feature.getAttribute('CategoryScheme.id')
+            xml_id = feature.getAttribute('xml_id')
             name = feature.getAttribute('CategoryScheme.name')
-            if not id in tree:
-                tree[id] = Container(name, id, id, [])
-            else:
-                tree[id].name = name
+            children = []
+            category_scheme = CategoryScheme(name, id, children, xml_id)
+            containers_by_xml_id[xml_id] = category_scheme
+            tree[id] = category_scheme
         elif 'Categorisation' == fme_feature_type:
             if 'T' == feature.getAttribute('Categorisation.dissemination_perspective_id'):
                 continue
-            target_urn = feature.getAttribute('Categorisation.Target.urn')
+            category_urn = feature.getAttribute('Categorisation.Target.urn')
             dataflow_id = feature.getAttribute('Categorisation.Source.id')
-            key = item_key_func(dataflow_id)
-            item = items.get(key, Item(dataflow_id, dataflow_id, key))
-            if not key in items:
-                items[key] = item
-            target = tree.get(target_urn, Container(None, None, target_urn, [item]))
-            if not target_urn in tree:
-                tree[target_urn] = target
-            else:
-                target.children.append(item)
+            dataflow_key = item_key_func(dataflow_id)
+            categorization = Categorisation(category_urn, dataflow_key)
+            categorizations.append(categorization)
+            
         elif 'Dataflow' == fme_feature_type:
             '''
             These are the leaves. The ID that we communicate with FME here must conform to some rules
             in order for FME to recognize it later on
             '''
             dataflow_id = feature.getAttribute('Dataflow.id')
-            key = item_key_func(dataflow_id)
-            # fme://safe.microsoft-sharepoint.microsoft-sharepoint
-            #  /Orderv%C3%A4rde%20skolval%202016.xlsx
-            #  ?id=%2FOrderv%C3%A4rde%20skolval%202016.xlsx
-            #  &module=fmepy_microsoft_sharepoint.web_select
-            #  &webservice=safe.microsoft-sharepoint.Microsoft%20SharePoint
-            #  &connection=sepesd%20Microsoft%20SharePoint%20Online%20%28safe.microsoft-sharepoint%29
-            #  &__microsoftsharepoint_site=swecogroup.sharepoint.com%2C87bf4075-1cb8-45b4-9142-0a108f1b0559%2C6ff5571a-fc7c-4ffd-957d-0d9c90445536&__microsoftsharepoint_document_library=b%21dUC_h7gctEWRQgoQjxsFWRpX9W98_P1PlX0NnJBEVTaF5AyJwn_6Q5N3aSujOWul
-            #  &mode=file
-            # fme://<publisher_uid>.<uid>.<python_package>
+            id = item_key_func(dataflow_id)
             name = feature.getAttribute('Dataflow.name')
-            item = items.get(key, Item(name, dataflow_id, key))
-            if not key in items:
-                items[key] = item
-            else:
-                item.name = name
+            item = Item(name, id)
+            items[id] = item
 
+    orphans = []
+    for k,v in tree.items():
+        if Category == type(v):
+            parent = containers_by_xml_id.get(v.xml_parent_id)
+            if parent is None:
+                orphans.append(v)
+                logger.warn('Orphan detected: %s %s', k, v.xml_parent_id)
+                continue
+            parent.children.append(v)
+    if orphans:
+        logger.warn('Orphans detected: %s', len(orphans))
+    for categorization in categorizations:
+        container = containers_by_urn.get(categorization.category_urn)
+        item = items.get(categorization.dataflow_key)
+        if Category == type(container) and Item == type(item):
+            container.children.append(item)
     return tree, items
 
 def makeInstance(args):
@@ -254,16 +260,16 @@ class EurostatFilesystem(IFMEWebFilesystem):
                 [
                     ContainerItem(True, k, v.name)
                     for k,v in self._tree.items()
-                    if not k.startswith('urn:')
+                    if isinstance(v, CategoryScheme)
                 ]
             )
         elif container_key in self._tree:
             container = self._tree[container_key]
-            if not Container == type(container):
+            if not isinstance(container, Container):
                 return ContainerContentResponse([]) 
             return ContainerContentResponse(
                 [
-                    ContainerItem(Container == type(item), item.key, item.name)
+                    ContainerItem(isinstance(item, Container), item.id, item.name)
                     for item in container.children
                 ]
             )
@@ -343,29 +349,19 @@ class EurostatFilesystem(IFMEWebFilesystem):
         item = self._tree.get(item_id, self._items.get(item_id))
         if not item:
             return None
-        return ContainerItem(Container == type(item), item.key, item.name)
+        return ContainerItem(Container == type(item), item.id, item.name)
         mode = kwargs.get("mode", None)
         if 'Category' == mode:
             container_id = kwargs.get('CONTAINER_ID')
             return self.api.info(container_id)
         pass
 
-'''
 
-xmlparser.CurrentByteIndex
-
-    Current byte index in the parser input.
-
-xmlparser.CurrentColumnNumber¶
-
-    Current column number in the parser input.
-
-xmlparser.CurrentLineNumber
-
-    Current line number in the parser input.
-
-'''
 class ExpatCatalogParser:
+    '''
+    Not used for now but can remain as (bad) reference of how to (not) 
+    read xml using expat if we ever would like to come back that...
+    '''
     NS_SEP = ' '
     def __init__(self):
         self._parser = xml.parsers.expat.ParserCreate(encoding=None, namespace_separator=ExpatCatalogParser.NS_SEP)
@@ -375,6 +371,7 @@ class ExpatCatalogParser:
         self.path = []
         self._collect_at_path = dict()
         self._items = []
+        self._tree = dict()
     
     def _start_element(self, name, attributes):
         ns_uri, local_name = name.split(ExpatCatalogParser.NS_SEP)
@@ -388,6 +385,7 @@ class ExpatCatalogParser:
             }, [])
             if 'CategoryScheme' == local_name:
                 self._collect_at_path[(*path, 'Annotations', 'Annotation')] = []
+            
 
         elif 'Name' == local_name:
             for k,v in attributes.items():
@@ -419,6 +417,19 @@ class ExpatCatalogParser:
                 for annotation in self._collect_at_path.get((*path, 'Annotations', 'Annotation'), []):
                     if 'DISSEMINATION_PERSPECTIVE_ID' == annotation.get('AnnotationType'):
                         attributes['DISSEMINATION_PERSPECTIVE_ID'] = annotation.get('AnnotationTitle')
+                if 'id' in attributes:
+                    id = attributes['id']
+                    self._tree[id] = (path, collected_name, attributes, children)
+            elif 'Category' == local_name:
+                urn = attributes.get('urn')
+                item = (path, collected_name, attributes, children)
+                self._tree[urn] = item
+                parent_path = tuple(self.path[:-1])
+                parent_attributes, parent_children = self._collect_at_path.get(parent_path)
+                parent_children.append(item)
+                #parent_local_name = parent_path[-1]
+                #parent_key = parent_attributes.get(['urn', 'id']['CategoryScheme' == parent_local_name])
+                #print(parent_local_name, parent_key)
             self._items.append((path, collected_name, attributes, children))
         elif 'AnnotationType' == local_name:
             path = tuple(self.path)
@@ -450,6 +461,11 @@ if __name__ == '__main__':
         if Container == type(item):
             for child in item.children:
                 print_item(child, indent + ' ')
+    def print_item2(path, collected_name, attributes, children, indent=''):
+        print(indent, collected_name, attributes)
+        for child in children:
+            print_item2(*child, indent=indent+' ')
+
     datasets = [
           'https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/categoryscheme/ESTAT/all'
         #, 'https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/categorisation/ESTAT/all'
@@ -463,4 +479,6 @@ if __name__ == '__main__':
         p.parse(r.text)
         for path, collected_name, attributes, children in p._items:
             #if not 'CategoryScheme' == path[-1]: continue
-            print(path, collected_name, attributes, children)
+            pass #print(path, collected_name, attributes, children)
+        for k,(path, collected_name, attributes, children) in p._tree.items():
+            print_item2(path, collected_name, attributes, children, indent=k)
