@@ -28,8 +28,6 @@ DEFAULT_MACRO TRIM_FEATURE_TYPE_NAME Yes
 DEFAULT_MACRO REPLACE_ATTR_NAME_INVALID_CHARS No
 DEFAULT_MACRO READ_EMPTY_VALUES_AS Null
 
-DEFAULT_MACRO SourceDataset fme://eea.fme-eurostat.fme-eurostat?id=&module=fmepy_eurostat.catalog&webservice=eea.eurostat.Eurostat&agency=ESTAT
-
 ! Syntax: SOURCE_READER <READER NAME> [<PARM NAME> <PARM_VALUE>] [[-]<Schema Keyword> <Schema Macro|Constant Value>]
 ! This directive specifies the name of the reader used to drive the generation of
 ! a mapping file/workspace. It also is where parameters specific to how the reader
@@ -89,7 +87,7 @@ SCAN_SUPPORT_NULL_AND_EMPTY_TYPES yes
 SOURCE_DATASET \"$[SourceDataset]\"
 
 SOURCE_PREAMBLE
-DEFAULT_VALUE SourceDataset $(SourceDataset)
+
 GUI WEB_SELECT SourceDataset SERVICE:eea.eurostat.Eurostat%MODULE:fmepy_eurostat.catalog%KEYVALS:AGENCY,ESTAT%PROMPTFORTITLE%SHOWID%SELECTION:ITEMS_ONLY%NO_SEARCH%ITEM_ICON::/images/bucket.png Dataflow:
 
 DEFAULT_MACRO WB_KEYWORD EUROSTAT
@@ -104,7 +102,6 @@ WORKBENCH_SOURCE_PREAMBLE
 END_WORKBENCH_SOURCE_PREAMBLE
 
 SOURCE_SETTINGS
-DEFAULT_VALUE SourceDataset $(SourceDataset)
 
 DEFAULT_VALUE TRIM_FEATURE_TYPE_NAME $(TRIM_FEATURE_TYPE_NAME)
 DEFAULT_VALUE REPLACE_ATTR_NAME_INVALID_CHARS $(REPLACE_ATTR_NAME_INVALID_CHARS)
