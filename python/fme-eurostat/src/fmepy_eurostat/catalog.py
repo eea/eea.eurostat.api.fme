@@ -275,16 +275,6 @@ class EurostatFilesystem(IFMEWebFilesystem):
             )
         return ContainerContentResponse([])
 
-    def _download_file(self, args):
-        """
-        Download a single file.
-
-        :param str file_id: Identifier for the file to download.
-        :param io.BytesIO dest_file: File-like object to write into.
-        """
-        self._log.info('download_file %s', str(args))
-        pass
-
     def downloadFile(self, args):
         """
         Called by Workbench to download a single file.
@@ -299,16 +289,51 @@ class EurostatFilesystem(IFMEWebFilesystem):
 
         :rtype: None
         """
+
+        """
+        https://<api_base_uri>/sdmx/2.1/<resource>/<flowRef>/<key>?startPeriod=value&endPeriod=value
+        The start and end of the time period in the filter are determined as startPeriod and endPeriod. Following time periods are supported:
+            Annual        YYYY-A1 or YYYY
+            Semester      YYYY-S[1-2]
+            Quarter       YYYY-Q[1-4]
+            Monthly       YYYY-M[01-12] or YYYY-[01-12]
+            Weekly        YYYY-W[01-53]
+            Daily         YYYY-D[001-366]
+            Year interval YYYY/P[01-99]Y
+        """
         self._log.info('downloadFile %s', str(args))
         #downloadFile {'FILE_ID': 'FOR_VOL', 'TARGET_FOLDER': 'C:/Users/sepesd/AppData/Local/Temp/wbrun_1675946745961_15424/fmetmp_4/TempFS_1675947095053_14388', 'FILENAME': 'FOR_VOL.csv', 'AGENCY': 'ESTAT'}
         dataflow_id = args['FILE_ID']
         target_folder = args['TARGET_FOLDER']
         filename = args['FILENAME']
-        url = f'{self._agency.base_uri}/sdmx/2.1/data/{dataflow_id}?format=SDMX-CSV'
+        start_period = args.get('STARTPERIOD')
+        end_period = args.get('ENDPERIOD')
+        params = {
+            'format': 'SDMX-CSV'
+        }
+
+        if start_period and end_period:
+            #from datetime import datetime
+            #ts = datetime.strptime(start_period[:8], '%Y%m%d') #yyyymmdd
+            #params['startPeriod'] = ts.strftime('%Y-D%j')
+            try:
+                start_period = int(start_period)
+                end_period = int(end_period)
+                if 1900 < start_period and start_period <= end_period and 9999 >= end_period:
+                    params['startPeriod'] = start_period
+                    params['endPeriod'] = end_period
+                else:
+                    raise Exception('start/end-period out of bounds')
+            except Exception as e:
+                self._log.warn(str(e))
+
+        url = f'{self._agency.base_uri}/sdmx/2.1/data/{dataflow_id}'
+        self._log.info(' url: %s', url)
+        self._log.info(' params: %s', str(params))
         import requests
         import shutil
         import os.path
-        with requests.get(url, stream=True) as r:
+        with requests.get(url, params=params, stream=True) as r:
             with open(os.path.join(target_folder, filename), 'wb') as f:
                 shutil.copyfileobj(r.raw, f)
 
