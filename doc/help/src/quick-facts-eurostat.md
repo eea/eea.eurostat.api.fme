@@ -10,7 +10,7 @@
 | Dependencies                  | Python 3.8+                      |
 | Dataset Type                  | None                             |
 | Feature Type                  | Dataflow name                    |
-| Typical File Extensions       | Not applicable / xml--?          |
+| Typical File Extensions       | Not applicable                   |
 | Automated Translation Support | ???                              |
 | User-Defined Attributes       | ???                              |
 | Coordinate System Support     | Yes                              |
