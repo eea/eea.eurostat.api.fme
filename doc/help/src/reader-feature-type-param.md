@@ -1,5 +1,7 @@
-# Reportnet 3 Reader Feature Type Parameters
+# Eurostat Reader Feature Type Parameters
 To access feature type parameters, click the gear icon on a feature type in the workspace. This opens the Feature Type Parameter Editor. 
+
+
 
 ## Options
 ### WHERE Clause

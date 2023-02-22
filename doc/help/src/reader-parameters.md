@@ -1,31 +1,28 @@
 Eurostat Reader Parameters
 
 ### Dataset
-The Eurostat *Dataset*
 
 To choose a dataset: 
-- click on the down arrow on the right side.
-- Select File From Web
-- Browse Eurostat (eea.eurostat)
+- Click on the down arrow on the right side of the dataset.
+- Choose "Select File From Web".
+- Click on "Browse Eurostat (eea.eurostat)".
 
-![image](files://Images/SelectFileFromWeb.png)
+![SelectFileFromWeb.png](./Images/SelectFileFromWeb.png)
+
 
 
 A dialog window with a tree structure of folders categorizing the datasets will appear. Navigating through the folders will lead to a selectable dataset. 
 Only 1 dataset can be chosen at a time.
 
-![image](files://Images/DataBrowser.png)
+![DataBrowser.png](./Images/DataBrowser.png)
+
+Select a dataset and click on "ok".
 
 ## Parameters
 
-### Expose format attributes full name
-Ticking the box will lead to coded values in attributes being translated.
-Leaving the box unchecked will leave coded values as they are.
-
-
 ### Filter on time
 
-Optional. 
+**Optional.** 
 Providing a value for Start Period will ensure that data with a Time_Period greater than or equal to the given value will be read.
 Providing a value for End Period will ensure that data with a Time_Period less than or equal to the given value will be read.
 Values should correspond to the format for Time_Period for the chosen DataFlow. <refer to suitable documentation>
@@ -49,3 +46,8 @@ Providing values will restrict the reader to only fetch the first N Observations
 - Last N Observations return the last N observations in the corresponding series
 - Both definitions may be applied e.g. to return the first and last observations in a series.
 - If the filter is wrong, then a response is returned with no observation results.
+
+
+### Expose format attributes full name
+Ticking the box will lead to coded values in attributes being translated.
+Leaving the box unchecked will leave coded values as they are.

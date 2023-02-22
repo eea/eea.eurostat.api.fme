@@ -5,13 +5,12 @@
 - [Feature Representation](./feature-representation.md)
 - [Reader Parameters](./reader-parameters.md)
 - [Reader Feature Type Parameters](./reader-feature-type-param.md)
-- [Writer Parameters](./writer-parameters.md)
-- [Writer Feature Type Parameters](./writer-feature-type-param.md)
+<!-- - [Writer Parameters](./writer-parameters.md) -->
+<!-- - [Writer Feature Type Parameters](./writer-feature-type-param.md) -->
 - [User Attributes](./user-attributes.md)
-- [Reportnet3AttachmentDownloader](./reportnet3attachmentdownloader.md)
+  
+<!-- # Advanced -->
 
-# Advanced
-- [Dynamic Connection String](./reportnet3connectionstring.md)
-- [Debugging](./debugging.md)
-- [Version Info](./version.md)
+<!-- - [Debugging](./debugging.md) -->
+<!-- - [Version Info](./version.md) -->
 
