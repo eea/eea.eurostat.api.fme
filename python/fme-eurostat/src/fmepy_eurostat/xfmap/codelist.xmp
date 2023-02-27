@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<xfMap xmlns:xml="http://www.w3.org/XML/1998/namespace"
+    xmlns:c="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common"
+    xmlns:s="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure">
+    <feature-map multi-feature-construction="true">
+        <mapping match="s:Codelist">
+            <feature-type>
+                <literal expr="Codelist"/>
+            </feature-type>
+            <attributes>
+                <attribute>
+                    <name>
+                        <literal expr="Codelist.agencyID"/>
+                    </name>
+                    <value>
+                        <extract expr="@agencyID"/>
+                    </value>
+                </attribute>
+                <attribute>
+                    <name>
+                        <literal expr="Codelist.id"/>
+                    </name>
+                    <value>
+                        <extract expr="@id"/>
+                    </value>
+                </attribute>
+                <attribute>
+                    <name>
+                        <literal expr="Codelist.isFinal"/>
+                    </name>
+                    <value>
+                        <extract expr="@isFinal"/>
+                    </value>
+                </attribute>
+                <attribute>
+                    <name>
+                        <literal expr="Codelist.urn"/>
+                    </name>
+                    <value>
+                        <extract expr="@urn"/>
+                    </value>
+                </attribute>
+                <attribute>
+                    <name>
+                        <literal expr="Codelist.version"/>
+                    </name>
+                    <value>
+                        <extract expr="@version"/>
+                    </value>
+                </attribute>
+            </attributes>
+        </mapping>
+        <mapping match="s:Code">
+            <feature-type>
+                <literal expr="Code"/>
+            </feature-type>
+            <attributes>
+                <attribute>
+                    <name>
+                        <literal expr="Code.id"/>
+                    </name>
+                    <value>
+                        <extract expr="@id"/>
+                    </value>
+                </attribute>
+            </attributes>
+        </mapping>
+    </feature-map>
+    
+    <feature-content-map>
+        <mapping match="c:Name">
+            <attributes>
+                <attribute >
+                    <name>
+                        <matched expr="local-name" ancestor="parent"/>
+                        <literal expr=".name."/>
+                        <extract expr="@xml:lang"/>
+                    </name>
+                    <value>
+                        <extract expr="."/>
+                    </value>
+                </attribute>
+            </attributes>
+        </mapping>
+    </feature-content-map>
+
+
+</xfMap>
