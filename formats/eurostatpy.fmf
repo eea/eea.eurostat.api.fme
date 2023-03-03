@@ -1,0 +1,162 @@
+DEFAULT_MACRO FORMAT_SHORT_NAME EEA.EUROSTAT.EUROSTATPY
+
+! First Directive in Meta File must be 'SOURCE_READER'
+SOURCE_READER EEA.EUROSTAT.EUROSTATPY
+
+FORMAT_NAME EEA.EUROSTAT.EUROSTATPY
+
+FORMAT_TYPE PYTHON
+PLUGIN_NAME fmepy_eurostat
+
+
+SOURCE_PREAMBLE
+GUI FILE_OR_URL SourceDataset NO_SWIZZLER Select a Dataflow
+END_SOURCE_PREAMBLE
+
+WORKBENCH_SOURCE_PREAMBLE
+END_WORKBENCH_SOURCE_PREAMBLE
+
+SOURCE_SETTINGS
+
+DEFAULT_VALUE QUERY_FEATURE_TYPES_FOR_MERGE_FILTERS Yes
+DEFAULT_VALUE ALL_MERGED_FILTERS_NEED_NO_DEFS Yes
+
+END_SOURCE_SETTINGS
+
+FORMAT_PARAMETER ATTRIBUTE_READING DEFLINE
+
+
+SOURCE_DATASET \"$[SourceDataset]\"
+
+ATTRIBUTE_CASE ANY
+FEATURE_TYPE_CASE ANY
+ATTRIBUTE_LENGTH 512
+FEATURE_TYPE_LENGTH 512
+
+! BUG#77117 Fixed feature type names with '.' not being truncated properly
+FEATURE_TYPE_LENGTH_INCLUDES_PREFIX dummyValue
+
+
+MACRO SourceExposableAttrs                                                    \
+   eurostat_geo                str
+
+MACRO DestExposableAttrs
+
+INCLUDE [if {"$(FMEGEN_DIRECTION)" == "Source"}                               \
+         {                                                                    \
+            puts {MACRO DestExposableAttrs};                                  \
+         }                                                                    \
+         else                                                                 \
+         {                                                                    \
+            puts {MACRO SourceExposableAttrs};                                \
+         }]
+
+WORKBENCH_EXPOSABLE_ATTRIBUTES                                                \
+   $(SourceExposableAttrs)                                                    \
+   $(DestExposableAttrs)                                                      \
+   eurostat_type                         str
+
+
+
+! -----------------------------------------------------------------------------
+! DEF line and feature type parameters.
+CORR_LINE_TEMPLATE {FME_GEN_GROUP_NAME} eurostat_type {FME_GEN_GEOMETRY}
+DEF_LINE_BREAK GEOM_CHANGE
+
+DEFAULT_MACRO eurostat_CONFIGURATION_DEFLINE_TEMPLATE                        \
+    fme_feature_operation INSERT                                              \
+    fme_table_handling    USE_EXISTING
+
+! Specify the DEF line template for format feature types,
+! including options at the feature type level.
+! TODO: Update or remove example feature type option and group below.
+! DONE: I (peter) believe the template had the gui options in the wrong place...
+INCLUDE [if {"$(FMEGEN_DIRECTION)" == "Source"} {                             \
+    puts {                                                                    \
+        DEF_LINE_TEMPLATE {FME_GEN_GROUP_NAME}                                \
+            eurostat_type {FME_GEN_GEOMETRY}                                 \
+            eurostat_where_clause  \"\"                                      \
+    };                                                                        \
+    } else {                                                                  \
+        puts {                                                                \
+            DEF_LINE_TEMPLATE {FME_GEN_GROUP_NAME}                            \
+            eurostat_type {FME_GEN_GEOMETRY}                                 \
+        };                                                                    \
+    }]
+
+INCLUDE [if {"$(FMEGEN_DIRECTION)" == "Source"} {                             \
+    puts { WORKBENCH_DEFLINE_PARMS                                            \
+    "GUI NAMEDGROUP option_group eurostat_clause Options" ""           \
+    "GUI OPTIONAL WHOLE_LINE TEXT_EDIT_SQL_CFG reportnet_where_clause MODE,WHERE WHERE Clause" "" \
+    };                                                                        \
+} else {                                                                      \
+    puts { WORKBENCH_DEFLINE_PARMS                                            \
+    "GUI OPTIONAL TEXT reportnet_geom_column Spatial Column:" ""                         \
+    "GUI LOOKUP_CHOICE  reportnet_validate_geom_type Pass<space>through,PT%Drop<space>feature,DF%Terminate<space>translation,TT Geometry type handling:" "$(VALIDATE_GEOM_TYPE)"  \
+    };                                                                        \
+}]
+
+DEST_ILLEGAL_ATTR_LIST                                   \
+    eurostat_type str                                  \
+    eurostat_where_clause str                           \
+    $(CONFIGURATION_ILLEGAL_ATTR_LIST)
+
+
+
+! Neither the GENERICIZE_GEOMTYPE_ATTR_NAME statement nor the 
+! CORR_LINE_TEMPLATE statement in file 
+! `C:\Users\sepesd\AppData\Roaming\Safe Software\FME\Packages\22623-win64\metafile\eea.eurostat\eea.eurostat.eurostatpy.fmf'
+! defined a geometry type attribute
+
+! Copied from sqlite3_common.fmi:
+! For genericization support, we must identify which attribute holds
+! the 'geometry type' of the feature since the CORR_LINE_TEMPLATE
+! does not.  Well, its not really used anyway for databases, but we still
+! need to do something
+
+GENERICIZE_GEOMTYPE_ATTR_NAME eurostat_type
+GEOMETRY_TYPE_FIELD eurostat_type
+
+! TODO: Replace reportnet_none if format sets FMEGeometry onto FMEFeatures.
+GEOM_MAP eurostat_none               fme_no_geom
+GEOM_MAP fme_no_map                  fme_text
+GEOM_MAP fme_no_map                  fme_point
+GEOM_MAP fme_no_map                  fme_line
+GEOM_MAP fme_no_map                  fme_polygon
+GEOM_MAP fme_no_map                  fme_text
+GEOM_MAP fme_no_map                  fme_ellipse
+GEOM_MAP fme_no_map                  fme_arc
+GEOM_MAP fme_no_map                  fme_rectangle
+GEOM_MAP fme_no_map                  fme_rounded_rectangle
+GEOM_MAP fme_no_map                  fme_point
+GEOM_MAP fme_no_map                  fme_line
+GEOM_MAP fme_no_map                  fme_polygon
+GEOM_MAP fme_no_map                  fme_raster
+GEOM_MAP fme_no_map                  fme_solid
+GEOM_MAP fme_no_map                  fme_surface
+GEOM_MAP fme_no_map                  fme_point_cloud
+
+ATTR_TYPE_MAP                                     \
+    str                fme_buffer                 \
+    buffer             fme_binarybuffer           \
+    str                fme_xml                    \
+    str                fme_json                   \
+    str                fme_varchar(width)         \
+    buffer             fme_varbinary(width)       \
+    str                fme_char(width)            \
+    buffer             fme_binary(width)          \
+    str                fme_datetime               \
+    str                fme_time                   \
+    str                fme_date                   \
+    float              fme_real64                 \
+    float              fme_real32                 \
+    int                fme_int64                  \
+    int                fme_int32                  \
+    int                fme_int16                  \
+    int                fme_int8                   \
+    int                fme_uint64                 \
+    int                fme_uint32                 \
+    int                fme_uint16                 \
+    int                fme_uint8                  \
+    bool               fme_boolean                \
+    float              fme_decimal(width,decimal)
