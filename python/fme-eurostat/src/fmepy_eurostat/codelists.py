@@ -6,6 +6,9 @@ from .constants import Agency
 from fmeobjects import FMESession, FMEFeature, FMEFactoryPipeline
 from fmegeneral.fmelog import get_configured_logger
 import os.path
+
+# not sure how to best type-decorate function
+# from typing import List
 from dataclasses import dataclass
 
 @dataclass
@@ -22,9 +25,17 @@ class CodeList:
         return f'CodeList(name={self.name}, id={self.id}, version={self.version}, values: {len(self.values)})'
 
 
-def get(agency: Agency, codelist_ids: list, lang='en'):
+def get(agency: Agency, codelist_ids: list, lang='en') -> "list[CodeList]":
     """
     Download and interpret codelist xml files
+
+    example usage:
+    
+    from fmepy_eurostat import codelists
+    from fmepy_eurostat.constants import Agency
+
+    geo_codelist, *_ = codelists.get(Agency.ESTAT, ['GEO'], lang='en')
+
     """
     logger = get_configured_logger('codelist')
     session = FMESession()
@@ -91,7 +102,7 @@ def get(agency: Agency, codelist_ids: list, lang='en'):
         key = feature.getAttribute('Code.id')
         value = feature.getAttribute(f'Code.name.{lang}')
         codelist.values[key] = value
-    return codelists.values()
+    return list(codelists.values())
 
 
 if __name__ == '__main__':
