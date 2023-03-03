@@ -11,7 +11,10 @@ author:
 package_content:
   formats:
       - name: eurostat
+      - name: eurostatpy
   python_packages:
     - name: fme-eurostat
   web_filesystems:
     - name: Eurostat
+  web_services:
+    - name: Eurostat_v1.xml

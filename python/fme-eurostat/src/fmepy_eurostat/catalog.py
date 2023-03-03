@@ -1,16 +1,15 @@
 from dataclasses import dataclass
 from typing import List
 from fmeobjects import FMESession, FMEFeature, FMEFactoryPipeline
+from fmegeneral.fmelog import get_configured_logger
+from fmegeneral.webservices import FMENamedConnectionManager
+
 from .constants import (LOG_NAME, Agency, PACKAGE_KEYWORD)
 from ._vendor.webserviceconnector.fmewebfs import (
-    FMEWebFilesystemDriver,
     ContainerContentResponse,
     ContainerItem,
-    FMEWebFilesystem,
     IFMEWebFilesystem
 )
-import xml.parsers.expat
-
 import os.path
 XFMAP = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'xfmap', 'data_discovery.xmp')
 
@@ -38,18 +37,13 @@ class Categorisation:
     category_urn: str
     dataflow_key: str
 
-
-session = FMESession()
-
-from fmegeneral.fmelog import get_configured_logger
-logger = get_configured_logger('CATALOG')
-
-XFMAP_ENCODED = session.encodeToFMEParsableText(XFMAP)
-
 def read_catalog(datasets, item_key_func=lambda dataflow_id: dataflow_id):
     """
     Read categorization xml files into tree structure
     """
+    log = get_configured_logger(LOG_NAME)
+    fme_session = FMESession()
+    xfmap_wwjd = fme_session.encodeToFMEParsableText(XFMAP)
     pipeline_directives = []
     pipeline = FMEFactoryPipeline('read xml', pipeline_directives)
     factory_lines = [
@@ -68,7 +62,7 @@ def read_catalog(datasets, item_key_func=lambda dataflow_id: dataflow_id):
             ,'QUERYFCT_OUTPUT', 'DATA_ONLY'
             ,'CONTINUE_ON_READER_ERROR', 'YES'
             ,'QUERYFCT_SET_FME_FEATURE_TYPE', 'YES'
-            ,'READER_PARAMS_WWJD', f'FILE_TYPE,xfMap,XFMAP,{XFMAP_ENCODED}'
+            ,'READER_PARAMS_WWJD', f'FILE_TYPE,xfMap,XFMAP,{xfmap_wwjd}'
             ,'TREAT_READER_PARAM_AMPERSANDS_AS_LITERALS', 'YES'
             ,'OUTPUT', 'RESULT', 'FEATURE_TYPE', 'FeatureReader_OK'
             ,'OUTPUT', 'READER_ERROR', 'FEATURE_TYPE', 'FeatureReader_ERROR'
@@ -78,12 +72,12 @@ def read_catalog(datasets, item_key_func=lambda dataflow_id: dataflow_id):
 
     for factory_def in factory_lines:
         pipeline.addFactory(factory_def)
-    logger.info('Factory pipeline initialized')
+    log.info('Factory pipeline initialized')
 
     for dataset in datasets:
         feature = FMEFeature()
         feature.setAttribute('dataset', dataset)
-        logger.info('Reading dataset `%s`', dataset)
+        log.info('Reading dataset `%s`', dataset)
         pipeline.processFeature(feature)
     pipeline.allDone()
     tree = dict()
@@ -91,7 +85,7 @@ def read_catalog(datasets, item_key_func=lambda dataflow_id: dataflow_id):
     containers_by_xml_id = dict()
     containers_by_urn = dict()
     categorizations = []
-    logger.info('Emptying factory pipeline')
+    log.info('Emptying factory pipeline')
     # Iterating records twice because we need to resolve relations...
     while True:
         feature = pipeline.getOutputFeature()
@@ -150,11 +144,11 @@ def read_catalog(datasets, item_key_func=lambda dataflow_id: dataflow_id):
             parent = containers_by_xml_id.get(v.xml_parent_id)
             if parent is None:
                 orphans.append(v)
-                logger.warn('Orphan detected: %s %s', k, v.xml_parent_id)
+                log.warn('Orphan detected: %s %s', k, v.xml_parent_id)
                 continue
             parent.children.append(v)
     if orphans:
-        logger.warn('Orphans detected: %s', len(orphans))
+        log.warn('Orphans detected: %s', len(orphans))
     for categorization in categorizations:
         container = containers_by_urn.get(categorization.category_urn)
         item = items.get(categorization.dataflow_key)
@@ -169,26 +163,32 @@ def makeInstance(args):
     :param dict args: Initialization arguments.
     :rtype: FMEWebFilesystem
     """
-    log = get_configured_logger(LOG_NAME)
-    log.info('makeInstance: %s', str(args))
-    agency = Agency[args.get('AGENCY', 'ESTAT')]
-    log.info('Agency now set to: %s', agency)
-    #driver = EurostatFilesystemDriver(agency)
-    return EurostatFilesystem(agency)
+    return EurostatFilesystem({k.lower(): v for k,v in args.items()})
 
 class EurostatFilesystem(IFMEWebFilesystem):
-    def __init__(self, agency):
-        #super(EurostatFilesystemDriver, self).__init__()
+    def __init__(self, params):
         self._session = None
         self._log = get_configured_logger(self.keyword)
-        self._agency = agency
+        self._url_params = '&'.join(f'{k}={v}' for k,v in params.items())
+        agency_id = 'ESTAT'
+        if 'connection' in params:
+            nc_name = params['connection']
+            nc = FMENamedConnectionManager().getNamedConnection(nc_name)
+            if nc is not None:
+                self._log.info('Using settings from named connection %s', nc_name)
+                nc_params = nc.getKeyValues()
+                agency_id = nc_params['AGENCY']
+            else:
+                self._log.warn('Named Connection %s not found', nc_name)
+
+        self._agency = Agency[agency_id]
         self._tree = None
         self._items = None
-        self._log.info('EurostatFilesystem initialized with keyword %s', self.keyword)
+        self._log.info('EurostatFilesystem initialized with params %s', str(params))
 
     def make_dataflow_url_key(self, dataflow_id):
         # fme://eea.fme-eurostat.fme-eurostat/FOR_ECO_CP?id=FOR_ECO_CP&module=fmepy_eurostat.catalog&webservice=eea.eurostat.Eurostat&asdf=bsdf
-        return f'fme://eea.fme-eurostat.fme-eurostat/{dataflow_id}.csv?id={dataflow_id}&module=fmepy_eurostat.catalog&webservice=eea.eurostat.Eurostat&agency={self._agency.name}'
+        return f'fme://eea.fme-eurostat.fme-eurostat/{dataflow_id}.csv?id={dataflow_id}&module=fmepy_eurostat.catalog&webservice=eea.eurostat.Eurostat&{self._url_params}'
 
     @property
     def _driver(self):
@@ -230,23 +230,9 @@ class EurostatFilesystem(IFMEWebFilesystem):
 
         :rtype: dict
         """
-        #raise Exception('getContainerContents not implemented')
         self._log.info('getContainerContents %s', str(args))
-        return self._get_container_contents(args.get('CONTAINER_ID'))
-    def _get_container_contents(self, container_id, query=None, page_size=0, **kwargs):
-        """
-        Get a directory listing, returned in the form expected by FME Workbench.
-        The caller is responsible for proceeding through pagination, if applicable.
-
-        :param str container_id: Identifier for the container (e.g. folder) for which contents are being listed.
-        :param str query: Query or filter string for the request.
-            This is an arbitrary string specific to the underlying Web Filesystem.
-        :param int page_size: Requested maximum number of items to return per page.
-        :returns: An dict-like object representing the directory listing.
-            This object is in the form expected by FME Workbench, and represents one page of results.
-            It may contain info needed to proceed to the next page.
-        :rtype: ContainerContentResponse
-        """
+        container_key = args.get('CONTAINER_ID')
+        
         if self._tree is None:
             datasets = [
                   self._agency.category_schemes_url
@@ -254,7 +240,21 @@ class EurostatFilesystem(IFMEWebFilesystem):
                 , self._agency.dataflows_url
             ]
             self._tree, self._items = read_catalog(datasets, item_key_func=self.make_dataflow_url_key)
-        container_key = container_id or kwargs.get('__eurostat_category_scheme')
+        
+        if 'QUERY' in args:
+            query = args['QUERY'].lower()
+            self._log.info('searching for %s among %s items', query, str(len(self._items)))
+            search_result = [
+                ContainerItem(False, item.id, item.name)
+                for item in self._items.values()
+                if query in item.name.lower()
+            ]
+            #search_result = list(filter(lambda item: query in item.name, self._items))
+            self._log.info('%s items found', str(len(search_result)))
+            return ContainerContentResponse(
+                search_result
+            )
+        
         if not container_key:
             return ContainerContentResponse(
                 [
@@ -306,8 +306,8 @@ class EurostatFilesystem(IFMEWebFilesystem):
         dataflow_id = args['FILE_ID']
         target_folder = args['TARGET_FOLDER']
         filename = args['FILENAME']
-        start_period = args.get('STARTPERIOD')
-        end_period = args.get('ENDPERIOD')
+        start_period = args.get('START_PERIOD')
+        end_period = args.get('END_PERIOD')
         params = {
             'format': 'SDMX-CSV'
         }
@@ -375,135 +375,3 @@ class EurostatFilesystem(IFMEWebFilesystem):
         if not item:
             return None
         return ContainerItem(Container == type(item), item.id, item.name)
-        mode = kwargs.get("mode", None)
-        if 'Category' == mode:
-            container_id = kwargs.get('CONTAINER_ID')
-            return self.api.info(container_id)
-        pass
-
-
-class ExpatCatalogParser:
-    '''
-    Not used for now but can remain as (bad) reference of how to (not) 
-    read xml using expat if we ever would like to come back that...
-    '''
-    NS_SEP = ' '
-    def __init__(self):
-        self._parser = xml.parsers.expat.ParserCreate(encoding=None, namespace_separator=ExpatCatalogParser.NS_SEP)
-        self._parser.StartElementHandler = self._start_element
-        self._parser.EndElementHandler = self._end_element
-        #p.CharacterDataHandler = char_data
-        self.path = []
-        self._collect_at_path = dict()
-        self._items = []
-        self._tree = dict()
-    
-    def _start_element(self, name, attributes):
-        ns_uri, local_name = name.split(ExpatCatalogParser.NS_SEP)
-        self.path.append(local_name)
-        if local_name in ['CategoryScheme', 'Category']:
-            path = tuple(self.path)
-            self._collect_at_path[(*path, 'Name')] = []
-            self._collect_at_path[path] = ({
-                [('_', k),k.split(ExpatCatalogParser.NS_SEP)][ExpatCatalogParser.NS_SEP in k][1]: v
-                for k,v in attributes.items()
-            }, [])
-            if 'CategoryScheme' == local_name:
-                self._collect_at_path[(*path, 'Annotations', 'Annotation')] = []
-            
-
-        elif 'Name' == local_name:
-            for k,v in attributes.items():
-                # Some attribute names are prepended with namespace, i.e. xml:lang
-                ns_uri, attr_local_name = [('_', k),k.split(ExpatCatalogParser.NS_SEP)][ExpatCatalogParser.NS_SEP in k]
-                if 'lang' == attr_local_name and 'en' == v:
-                    path = tuple(self.path)
-                    if path in self._collect_at_path:
-                        self._parser.CharacterDataHandler = self._collect_at_path[path].append
-        elif 'Annotation' == local_name:
-            path = tuple(self.path)
-            if path in self._collect_at_path:
-                self._collect_at_path[path].append({})
-                self._collect_at_path[(*path, 'AnnotationType')] = []
-                self._collect_at_path[(*path, 'AnnotationTitle')] = []
-        elif local_name in ['AnnotationType', 'AnnotationTitle']:
-            path = tuple(self.path)
-            if path in self._collect_at_path:
-                self._parser.CharacterDataHandler = self._collect_at_path[path].append
-
-    def _end_element(self, name):
-        ns_uri, local_name = name.split(ExpatCatalogParser.NS_SEP)
-        if local_name in ['CategoryScheme', 'Category']:
-            path = tuple(self.path)
-            name_path = (*path, 'Name')
-            collected_name = ''.join(self._collect_at_path.get(name_path, []))
-            attributes, children = self._collect_at_path.get(path, ({}, []))
-            if 'CategoryScheme' == local_name:
-                for annotation in self._collect_at_path.get((*path, 'Annotations', 'Annotation'), []):
-                    if 'DISSEMINATION_PERSPECTIVE_ID' == annotation.get('AnnotationType'):
-                        attributes['DISSEMINATION_PERSPECTIVE_ID'] = annotation.get('AnnotationTitle')
-                if 'id' in attributes:
-                    id = attributes['id']
-                    self._tree[id] = (path, collected_name, attributes, children)
-            elif 'Category' == local_name:
-                urn = attributes.get('urn')
-                item = (path, collected_name, attributes, children)
-                self._tree[urn] = item
-                parent_path = tuple(self.path[:-1])
-                parent_attributes, parent_children = self._collect_at_path.get(parent_path)
-                parent_children.append(item)
-                #parent_local_name = parent_path[-1]
-                #parent_key = parent_attributes.get(['urn', 'id']['CategoryScheme' == parent_local_name])
-                #print(parent_local_name, parent_key)
-            self._items.append((path, collected_name, attributes, children))
-        elif 'AnnotationType' == local_name:
-            path = tuple(self.path)
-            if path in self._collect_at_path:
-                value = ''.join(self._collect_at_path.get(path, []))
-                parent_path = tuple(self.path[:-1])
-                current_annotation = self._collect_at_path.get(parent_path)[-1]
-                current_annotation['AnnotationType'] = value
-        elif 'AnnotationTitle' == local_name:
-            path = tuple(self.path)
-            if path in self._collect_at_path:
-                value = ''.join(self._collect_at_path.get(path, []))
-                parent_path = tuple(self.path[:-1])
-                current_annotation = self._collect_at_path.get(parent_path)[-1]
-                current_annotation['AnnotationTitle'] = value
-
-        expected = self.path.pop()
-        self._parser.CharacterDataHandler = None
-    def parse(self, data, isfinal=False):
-        self._parser.Parse(data, isfinal)
-    def parse_file(self, file):
-        self._parser.ParseFile(file)
-
-            
-
-if __name__ == '__main__':
-    def print_item(item, indent=''):
-        print(indent, item.id, item.name)
-        if Container == type(item):
-            for child in item.children:
-                print_item(child, indent + ' ')
-    def print_item2(path, collected_name, attributes, children, indent=''):
-        print(indent, collected_name, attributes)
-        for child in children:
-            print_item2(*child, indent=indent+' ')
-
-    datasets = [
-          'https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/categoryscheme/ESTAT/all'
-        #, 'https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/categorisation/ESTAT/all'
-        #, 'https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/dataflow/ESTAT/all?detail=allstubs'
-    ]
-    for url in datasets:
-        import requests
-        r = requests.get(url)
-        print(r, len(r.text))
-        p = ExpatCatalogParser()
-        p.parse(r.text)
-        for path, collected_name, attributes, children in p._items:
-            #if not 'CategoryScheme' == path[-1]: continue
-            pass #print(path, collected_name, attributes, children)
-        for k,(path, collected_name, attributes, children) in p._tree.items():
-            print_item2(path, collected_name, attributes, children, indent=k)
