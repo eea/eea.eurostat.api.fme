@@ -86,7 +86,7 @@ SCAN_SUPPORT_BOOL_TYPE yes
 ! Added support for null types PR#38295
 SCAN_SUPPORT_NULL_AND_EMPTY_TYPES yes
 
-! &startPeriod=$[$(FMEGEN_SOURCE_KEYWORD)_IN_START_PERIOD]&endPeriod=$[$(FMEGEN_SOURCE_KEYWORD)_IN_END_PERIOD]
+
 SOURCE_DATASET \"$[SourceDataset]\"
 
 SOURCE_PREAMBLE
@@ -94,9 +94,10 @@ GUI FILE_OR_URL SourceDataset NO_SWIZZLER Select a Dataflow
 DEFAULT_MACRO WB_KEYWORD EUROSTAT
 
 FACTORY_DEF * TeeFactory                                       \
-    FACTORY_NAME $[WB_KEYWORD]_Dummy                           \ 
+    FACTORY_NAME $[WB_KEYWORD]_ExamplePipeLine                 \ 
     INPUT  FEATURE_TYPE *                                      \
-    OUTPUT FEATURE_TYPE * @SupplyAttributes(eurostat_type,@Value(csv_type))
+    OUTPUT FEATURE_TYPE *                                      \
+        @SupplyAttributes(eurostat_type,@Value(csv_type))
 
 END_SOURCE_PREAMBLE
 
