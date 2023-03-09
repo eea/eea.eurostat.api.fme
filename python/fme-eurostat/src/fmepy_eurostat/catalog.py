@@ -134,7 +134,7 @@ def read_catalog(datasets, item_key_func=lambda dataflow_id: dataflow_id):
             '''
             dataflow_id = feature.getAttribute('Dataflow.id')
             id = item_key_func(dataflow_id)
-            name = feature.getAttribute('Dataflow.name')
+            name = '{} [{}]'.format(feature.getAttribute('Dataflow.name'), dataflow_id)
             item = Item(name, id)
             items[id] = item
 
@@ -308,14 +308,14 @@ class EurostatFilesystem(IFMEWebFilesystem):
         filename = args['FILENAME']
         start_period = args.get('START_PERIOD')
         end_period = args.get('END_PERIOD')
+        first_n_observations = args.get('FIRST_N_OBSERVATIONS')
+        last_n_observations = args.get('LAST_N_OBSERVATIONS')
+
         params = {
             'format': 'SDMX-CSV'
         }
 
         if start_period and end_period:
-            #from datetime import datetime
-            #ts = datetime.strptime(start_period[:8], '%Y%m%d') #yyyymmdd
-            #params['startPeriod'] = ts.strftime('%Y-D%j')
             try:
                 start_period = int(start_period)
                 end_period = int(end_period)
@@ -326,6 +326,18 @@ class EurostatFilesystem(IFMEWebFilesystem):
                     raise Exception('start/end-period out of bounds')
             except Exception as e:
                 self._log.warn(str(e))
+        if first_n_observations:
+            try:
+                first_n_observations = int(first_n_observations)
+                params['firstNObservations'] = first_n_observations
+            except Exception as e:
+                self._log.warn(str(e))
+        if last_n_observations:
+            try:
+                last_n_observations = int(last_n_observations)
+                params['lastNObservations'] = last_n_observations
+            except Exception as e:
+                self._log.warn(str(e))
 
         url = f'{self._agency.base_uri}/sdmx/2.1/data/{dataflow_id}'
         self._log.info(' url: %s', url)
@@ -334,6 +346,15 @@ class EurostatFilesystem(IFMEWebFilesystem):
         import shutil
         import os.path
         with requests.get(url, params=params, stream=True) as r:
+            for k,v in r.headers.items():
+                self._log.info(' response header %s: %s', k, v)
+            r.raise_for_status()
+            content_type = r.headers.get('Content-Type', '')
+            self._log.info(' response status code %s', r.status_code)
+            if 'application/xml' == content_type:
+                raise Exception(r.text)
+            if not 'application/vnd.sdmx.data+csv;version=1.0.0' == content_type:
+                self._log.warn('Unexpected content type: %s', content_type)
             with open(os.path.join(target_folder, filename), 'wb') as f:
                 shutil.copyfileobj(r.raw, f)
 
