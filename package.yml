@@ -3,7 +3,7 @@ uid: eurostat
 publisher_uid: eea
 name: Eurostat
 description: Eurostat TODO
-version: 0.0.1
+version: 0.0.2
 minimum_fme_build: 21222
 author:
   name: EEA
