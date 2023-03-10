@@ -1,6 +1,8 @@
 [book]
-authors = ["Peter Segerstedt"]
+authors = [
+    "Peter Segerstedt",
+]
 language = "en"
 multilingual = false
 src = "src"
-title = "Help Documentation for the Eurostat FME Package"
+title = "Help Documentation for the Eurostat FME Package [0.1.0]"
