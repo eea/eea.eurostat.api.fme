@@ -1,5 +1,5 @@
 # Eurostat (eea.Eurostat)
-This FME Package contains the Eurostat Reader introduced for FME 2022.
+This FME Package contains the Eurostat Reader introduced for FME 2022.1.
 
 Eurostat is the statistical office of the European Union, based in Luxembourg (LU). It publishes official, harmonised statistics on the European Union and the euro area, offering a comparable, reliable and objective portrayal of Europe's society and economy.
 
@@ -11,13 +11,13 @@ To choose a dataset:
 - click on the down arrow on the right side.
 - Select File From Web
 - Browse Eurostat (eea.eurostat)
+- Create or choose a web-connection.
+- Fill in the parameters according to your needs.
   
 The Eurostat Reader checks which datasets (dataflows) are available. Browse through the catalogs untill the desired dataset is found.
 Double click the dataset or select it and click on "ok".
 
 The reader will allow you to pick 'one' dataset.
-
-Optional filters can be set in the parameter options.
 
 FME Feature Types are defined by the dataset chosen.
 

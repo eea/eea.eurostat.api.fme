@@ -1,6 +1,6 @@
 Eurostat Reader Parameters
 
-### Dataset
+### Dataset / Authentication
 
 To choose a dataset: 
 - Click on the down arrow on the right side of the dataset.
@@ -9,16 +9,31 @@ To choose a dataset:
 
 ![SelectFileFromWeb.png](./Images/SelectFileFromWeb.png)
 
+A new dialog window with the parameters will appear. 
 
+![Parameters.png](./Images/Parameters.png)
 
-A dialog window with a tree structure of folders categorizing the datasets will appear. Navigating through the folders will lead to a selectable dataset. 
+The Eurostat connection is a mandatory parameter that must be set.
+
+![WebConnection.png](./Images/WebConnection.png)
+
+- Web service: choose: Eurostat_v1 (eea.eurostat)
+- Connection name: choose a name of your choice.
+- Agency: The agency determines from which agency data is read. Different Agencys contain different dataflows.
+- Local Cache Folder: There are a lot of dataflows to choose from. To avoid loading the list every time the information is stored as cache. This parameter lets you decide where you want to store this cache.
+- Expiry Time (Seconds): This parameter determines how long the cache should be saved.
+- Verify SSL Certificates: If checked, the reader will verify SSL certificates. 
+
+Once you've set up the webconnection. Click on "OK".
+
+To select a dataflow navigating through the folders to the desired dataflow. 
 Only 1 dataset can be chosen at a time.
 
 ![DataBrowser.png](./Images/DataBrowser.png)
 
 Select a dataset and click on "ok".
 
-## Parameters
+## Optional extra Parameters
 
 ### Filter on time
 
@@ -48,6 +63,6 @@ Providing values will restrict the reader to only fetch the first N Observations
 - If the filter is wrong, then a response is returned with no observation results.
 
 
-### Expose format attributes full name
-Ticking the box will lead to coded values in attributes being translated.
-Leaving the box unchecked will leave coded values as they are.
+<!--- ### Expose format attributes full name --->
+<!--- Ticking the box will lead to coded values in attributes being translated. --->
+<!--- Leaving the box unchecked will leave coded values as they are. --->
