@@ -169,7 +169,13 @@ class EurostatFilesystem(IFMEWebFilesystem):
     def __init__(self, params):
         self._session = None
         self._log = get_configured_logger(self.keyword)
-        self._url_params = '&'.join(f'{k}={v}' for k,v in params.items())
+        self._url_params = '&'.join(
+            f'{k}={v}' 
+            for k,v in params.items() 
+            if v is not None 
+                and len(v) 
+                and not k in ['fme_connection_group','constraints_group','quick_ref_group','quick_ref']
+        )
         agency_id = 'ESTAT'
         if 'connection' in params:
             nc_name = params['connection']
@@ -180,6 +186,8 @@ class EurostatFilesystem(IFMEWebFilesystem):
                 agency_id = nc_params['AGENCY']
             else:
                 self._log.warn('Named Connection %s not found', nc_name)
+        elif agency in params:
+            agency_id = params['agency']
 
         self._agency = Agency[agency_id]
         self._tree = None
@@ -316,16 +324,8 @@ class EurostatFilesystem(IFMEWebFilesystem):
         }
 
         if start_period and end_period:
-            try:
-                start_period = int(start_period)
-                end_period = int(end_period)
-                if 1900 < start_period and start_period <= end_period and 9999 >= end_period:
-                    params['startPeriod'] = start_period
-                    params['endPeriod'] = end_period
-                else:
-                    raise Exception('start/end-period out of bounds')
-            except Exception as e:
-                self._log.warn(str(e))
+            params['startPeriod'] = start_period
+            params['endPeriod'] = end_period
         if first_n_observations:
             try:
                 first_n_observations = int(first_n_observations)
