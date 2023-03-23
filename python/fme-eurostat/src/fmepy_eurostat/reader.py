@@ -50,8 +50,12 @@ class EurostatReader(FMEReader):
         self._log.info(' parsed_parameters: %s', parsed_parameters)
         mapping_file_parameters = {k: self._mapping_file.get(k) for k in ['CONNECTION', 'START_PERIOD', 'END_PERIOD', 'FIRST_N_OBSERVATIONS', 'LAST_N_OBSERVATIONS']}
         self._log.info(' mapping_file_parameters: %s', mapping_file_parameters)
-
-        for feature_type_id in parsed_parameters.get('+ID', []):
+        ids = parsed_parameters.get('+ID')
+        if str == type(ids):
+            ids = [ids]
+        elif ids is None:
+            ids = []
+        for feature_type_id in ids:
             self._log.info('  feature_type_id: %s', feature_type_id)
             feature_type_url = urlparse(feature_type_id) # expecting fme://-url from web select here
             #self._log.info('  feature_type_url: %s', feature_type_url)
