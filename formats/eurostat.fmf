@@ -74,7 +74,7 @@ DYNAMIC_LIBRARY csv2
 
 GEOMETRY_ATTRIBUTE_PREFIX csv_type
 
-SCAN_PREFER_UNSIGNED_TYPES_FOR_INTEGERS yes
+SCAN_PREFER_UNSIGNED_TYPES_FOR_INTEGERS no
 
 SCAN_FOR_INTEGER_CONTAINER_TYPES yes
 
@@ -226,8 +226,7 @@ FEATURE_TYPE_LENGTH_INCLUDES_PREFIX dummyValue
 WORKBENCH_ATTR_INDEX_TYPES RowID
 
 
-MACRO SourceExposableAttrs                                                    \
-   eurostat_country_code                TEXT
+MACRO SourceExposableAttrs
 
 MACRO DestExposableAttrs
 
@@ -264,8 +263,6 @@ INCLUDE [if {"$(FMEGEN_DIRECTION)" == "Source"} {                             \
 
 INCLUDE [if {"$(FMEGEN_DIRECTION)" == "Source"} {                             \
     puts { WORKBENCH_DEFLINE_PARMS                                            \
-    "GUI NAMEDGROUP option_group eurostat_where_clause Options" ""           \
-    "GUI OPTIONAL WHOLE_LINE TEXT_EDIT_SQL_CFG eurostat_where_clause MODE,WHERE WHERE Clause" "" \
     };                                                                        \
 } else {                                                                      \
     puts { WORKBENCH_DEFLINE_PARMS                                            \
@@ -277,11 +274,7 @@ INCLUDE [if {"$(FMEGEN_DIRECTION)" == "Source"} {                             \
 ! The list of words that are not allowed to be attributes
 ! TODO: All format attributes should be included here.
 DEST_ILLEGAL_ATTR_LIST                                   \
-    csv_type text                                   \
-    eurostat_geom_column text                            \
-    eurostat_country_code text                           \
-    eurostat_where_clause text                           \
-    eurostat_validate_geom_type text                     \
+    csv_type text                                        \
     $(CONFIGURATION_ILLEGAL_ATTR_LIST)
 
 ! ------------------------------------------------------------------------------
