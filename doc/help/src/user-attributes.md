@@ -12,3 +12,6 @@ Each unique dataflow can have extra attributes (e.g. freq, geo, unit, sex). Thes
 |GEO                    | DK              | Denmark        |
 |Freq                   | A               | Annually       |
 |Freq                   | M               | Monthly        |
+
+<!--- ### Getting the CodeList values --->
+<!--- In order to get the full code list value from the attribute values, the following custom transformer can be used; xxx --->
