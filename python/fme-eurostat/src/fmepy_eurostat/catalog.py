@@ -169,12 +169,20 @@ class EurostatFilesystem(IFMEWebFilesystem):
     def __init__(self, params):
         self._session = None
         self._log = get_configured_logger(self.keyword)
+        sorted_params = {
+            k: params[k] 
+            for k in sorted(params.keys() - {'fme_connection_group','constraints_group','quick_ref_group','quick_ref'})
+            if params[k] is not None and len(params[k])
+        }
+        import zlib
+        self._params_hash = ''
+        if sorted_params.keys() - {'connection'}:
+            import zlib
+            data = str(sorted_params).encode('utf8')
+            self._params_hash = f'_{zlib.crc32(data):8x}'
         self._url_params = '&'.join(
             f'{k}={v}' 
-            for k,v in params.items() 
-            if v is not None 
-                and len(v) 
-                and not k in ['fme_connection_group','constraints_group','quick_ref_group','quick_ref']
+            for k,v in sorted_params.items()
         )
         agency_id = 'ESTAT'
         if 'connection' in params:
@@ -196,7 +204,7 @@ class EurostatFilesystem(IFMEWebFilesystem):
 
     def make_dataflow_url_key(self, dataflow_id):
         # fme://eea.fme-eurostat.fme-eurostat/FOR_ECO_CP?id=FOR_ECO_CP&module=fmepy_eurostat.catalog&webservice=eea.eurostat.Eurostat&asdf=bsdf
-        return f'fme://eea.fme-eurostat.fme-eurostat/{dataflow_id}.csv?id={dataflow_id}&module=fmepy_eurostat.catalog&webservice=eea.eurostat.Eurostat&{self._url_params}'
+        return f'fme://eea.fme-eurostat.fme-eurostat/{dataflow_id}{self._params_hash}.csv?id={dataflow_id}&module=fmepy_eurostat.catalog&webservice=eea.eurostat.Eurostat&{self._url_params}'
 
     @property
     def _driver(self):
@@ -342,9 +350,13 @@ class EurostatFilesystem(IFMEWebFilesystem):
         url = f'{self._agency.base_uri}/sdmx/2.1/data/{dataflow_id}'
         self._log.info(' url: %s', url)
         self._log.info(' params: %s', str(params))
+        import os.path
+        dst_filepath = os.path.join(target_folder, filename)
+        if os.path.exists(dst_filepath):
+            self._log.warning(' reusing existing file `%s`', dst_filepath)
+            return
         import requests
         import shutil
-        import os.path
         with requests.get(url, params=params, stream=True) as r:
             for k,v in r.headers.items():
                 self._log.debug(' response header %s: %s', k, v)
@@ -352,8 +364,9 @@ class EurostatFilesystem(IFMEWebFilesystem):
             content_type = r.headers.get('Content-Type', '')
             self._log.info(' response status code %s', r.status_code)
             if not 'csv' in content_type.lower():
+                self._log.error(r.text)
                 raise Exception(r.text)
-            with open(os.path.join(target_folder, filename), 'wb') as f:
+            with open(dst_filepath, 'wb') as f:
                 shutil.copyfileobj(r.raw, f)
 
 
