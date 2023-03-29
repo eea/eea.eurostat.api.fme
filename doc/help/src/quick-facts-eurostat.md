@@ -11,6 +11,8 @@
 | Dataset Type                  | None                             |
 | Feature Type                  | Dataflow name                    |
 | Typical File Extensions       | Not applicable                   |
+| Encoding Support              | UTF-8                            |
+<!--
 | Automated Translation Support | ???                              |
 | User-Defined Attributes       | ???                              |
 | Coordinate System Support     | Yes                              |
@@ -19,9 +21,9 @@
 | Schema Required               | ???                              |
 | Transaction Support           | ???                              |
 | Geometry Type                 | ???                              |
-| Encoding Support              | UTF-8                            |
+-->
 
-
+<!--
 Geometry Support???:
 
 | Geometry       | Supported? |
@@ -43,3 +45,4 @@ Geometry Support???:
 | z values       | yes        |
 
 [^1]: Only homogeneous aggregates (MultiPoint, MultiLine...) but not heterogeneous ones.
+-->
