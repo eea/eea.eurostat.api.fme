@@ -9,7 +9,8 @@ On windows, something like following should work:
 ```
 git clone https://github.com/eea/<TODO>
 cd <TODO>
-for /f "usebackq delims==" %i IN (`python -c "from ruamel.yaml import YAML;print(YAML().load(open('package.yml')).get('version'))"`) DO SET MDBOOK_BOOK__TITLE=eea.eurostat [%i]
+git checkout -b v_1.0.2
+python update_version.py
 git log -1 --pretty=format:%H > .commit_hash
 mdbook build doc\help -d ..\..\help\pkg-eurostat
 fpkgr pack . 
