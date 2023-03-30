@@ -11,7 +11,7 @@ setup(
     name="fme-eurostat",
     packages=find_packages("src"),
     package_dir={"": "src"},
-    version="0.1.2",
+    version="0.1.3",
     description="Code for the eea.eurostat package in FME",
     long_description=readme,
     long_description_content_type="text/markdown",

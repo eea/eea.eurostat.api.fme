@@ -14,4 +14,4 @@ package_content:
   - {name: Eurostat_v1.xml}
 publisher_uid: eea
 uid: eurostat
-version: 0.1.2
+version: 0.1.3
