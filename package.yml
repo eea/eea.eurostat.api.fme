@@ -6,7 +6,6 @@ name: Eurostat
 package_content:
   formats:
   - {name: eurostat}
-  - {name: eurostatpy}
   python_packages:
   - {name: fme-eurostat}
   web_filesystems:
