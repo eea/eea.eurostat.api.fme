@@ -20,7 +20,7 @@ The Eurostat connection is a mandatory parameter that must be set.
 
 - Web service: choose: **Eurostat_v1 (eea.eurostat)**
 - Connection name: choose a name of your choice.
-- Agency: The agency determines from which agency data is read. Different Agencys contain different dataflows.
+- Agency: The agency determines from which agency data is read. Different Agencies contain different dataflows.
 - Local Cache Folder: There are a lot of dataflows to choose from. To avoid loading the list every time the information is stored as cache. This parameter lets you decide where you want to store this cache.
 - Expiry Time (Seconds): This parameter determines how long the cache should be saved.
 - Verify SSL Certificates: If checked, the reader will verify SSL certificates. 
@@ -77,7 +77,7 @@ Providing values will restrict the reader to only fetch the first N Observations
 - If the filter is wrong, then a response is returned with no observation results.
 
 Keep in mind that N observations does not equal N features. An observation is the unique combination of the codelists for a certain time period. 
-As an example: When First N observations is set to 1. The first 3 rows of this dataflow are given as a result. This due to the fact that 2013 is the first observation. But in this case Partner makes them unique for that time period. Making all of these a first 1 observation.
+As an example: When First N observations is set to 1. The first 3 rows of this dataflow are given as a result. This since 2013 is the first observation. But in this case Partner makes them unique for that time period. Making all these a first 1 observation.
 
 |  Freq | Partner  | Unit | geo | time_period | obs_value |
 | ------| -------- | -----| ----| ------------| ----------|
