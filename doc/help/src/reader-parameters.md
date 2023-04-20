@@ -67,7 +67,8 @@ Here you can search for the corresponding dataflow either by name or code. The D
 ![TimeFilter.png](./Images/Timefilter.png)
 
 ### Filter on first N and last N observations
-Optional.  
+
+**Optional.** 
 This allows filtering data observations within a time series to limit the number of observations returned.
 Providing values will restrict the reader to only fetch the first N Observations and/or the last N Observations of the DataFlow with consideration taken to the optional Filter on time.
 -  This filter may be applied to data which has been filtered by dimension and / or time.
@@ -79,12 +80,12 @@ Providing values will restrict the reader to only fetch the first N Observations
 Keep in mind that N observations does not equal N features. An observation is the unique combination of the codelists for a certain time period. 
 As an example: When First N observations is set to 1. The first 3 rows of this dataflow are given as a result. This since 2013 is the first observation. But in this case Partner makes them unique for that time period. Making all these a first 1 observation.
 
-|  Freq | Partner  | Unit | geo | time_period | obs_value |
-| ------| -------- | -----| ----| ------------| ----------|
-| A     | UNK      | NR   | AT  | 2013        | 0         |
-| A     | TOTAL    | NR   | AT  | 2013        | 54071     |
-| A     | NEU27_2020_FOR  | NR   | AT  | 2013        | 22505         |
-| A     | UNK      | NR   | AT  | 2014        | 4524      |
+| Freq | Partner        | Unit | geo | time_period | obs_value  |
+| ---- | :------------- | ---- | --- | ----------- | ---------: |
+| A    | UNK            | NR   | AT  | 2013        |          0 |
+| A    | TOTAL          | NR   | AT  | 2013        |      54071 |
+| A    | NEU27_2020_FOR | NR   | AT  | 2013        |      22505 |
+| A    | UNK            | NR   | AT  | 2014        |       4524 |
 
 
 <!--- ### Expose format attributes full name --->
