@@ -1,0 +1,18 @@
+[book]
+authors = ["Peter Segerstedt"]
+language = "en"
+multilingual = false
+src = "src"
+title = "FME Package Eurostat - Getting Started"
+subtitle = "asdf "
+
+[output.html]
+
+[output.markdown]
+
+[output.docx]
+command = "python -m mdbook_docx"
+pandoc = "C:\\Users\\sepesd\\AppData\\Local\\Pandoc\\pandoc.exe"
+reference-doc = "docx\\reference.docx"
+
+
