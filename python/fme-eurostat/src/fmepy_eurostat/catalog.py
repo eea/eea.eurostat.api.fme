@@ -194,7 +194,7 @@ class EurostatFilesystem(IFMEWebFilesystem):
                 agency_id = nc_params['AGENCY']
             else:
                 self._log.warn('Named Connection %s not found', nc_name)
-        elif agency in params:
+        elif 'agency' in params:
             agency_id = params['agency']
 
         self._agency = Agency[agency_id]
