@@ -1,0 +1,7 @@
+build
+dist
+.commit_hash
+py37
+test
+tmp
+samples

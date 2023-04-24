@@ -1,0 +1,346 @@
+<?xml version="1.0"?>
+<xfMap xmlns:xml="http://www.w3.org/XML/1998/namespace"
+    xmlns:c="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common"
+    xmlns:s="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure">
+
+    <reference-map>
+        <mapping match="s:CategorySchemes">
+        </mapping>
+        <mapping match="s:Categorisation">
+        </mapping>
+        <mapping match="s:Dataflow">
+        </mapping>
+    </reference-map>
+    <reference-content-map>
+        <mapping match="s:CategoryScheme">
+            <references persist="false">
+                <reference >
+                    <name>
+                        <literal expr="category_scheme.id"/>
+                    </name>
+                    <value>
+                        <extract expr="@id"/>
+                    </value>
+                </reference>
+                <reference>
+                    <name>
+                        <literal expr="xml_id"/>
+                    </name>
+                    <value>
+                        <literal expr="id-"/>
+                        <matched expr="local-name"/>
+                        <literal expr="-"/>
+                        <matched expr="sequence"/>
+                    </value>
+                </reference>
+            </references>
+        </mapping>
+        <mapping match="s:Category">
+            <references>
+                <reference>
+                    <name>
+                        <literal expr="xml_parent_id"/>
+                    </name>
+                    <value>
+                        <refexpr expr="xml_id" r-stack="previous"/>
+                    </value>
+                </reference>
+                <reference>
+                    <name>
+                        <literal expr="xml_id"/>
+                    </name>
+                    <value>
+                        <literal expr="id-"/>
+                        <matched expr="local-name"/>
+                        <literal expr="-"/>
+                        <matched expr="sequence"/>
+                    </value>
+                </reference>
+            </references>
+        </mapping>
+
+        <mapping match="s:CategoryScheme/c:Annotations/c:Annotation">
+            <references persist="true">
+                <reference >
+                    <name>
+                        <literal expr="category_scheme."/>
+                        <extract expr="./AnnotationType"/>
+                    </name>
+                    <value>
+                        <extract expr="./AnnotationTitle"/>
+                    </value>
+                </reference>
+            </references>
+        </mapping>
+        <mapping match="s:Categorisation/c:Annotations/c:Annotation">
+            <references persist="true">
+                <reference >
+                    <name>
+                        <literal expr="categorisation."/>
+                        <extract expr="./AnnotationType"/>
+                    </name>
+                    <value>
+                        <extract expr="./AnnotationTitle"/>
+                    </value>
+                </reference>
+            </references>
+        </mapping>
+        <mapping match="s:Dataflow/c:Name[@xml:lang='en']">
+            <references persist="true">
+                <reference>
+                    <name>
+                        <literal expr="dataflow.name"/>
+                    </name>
+                    <value>
+                        <extract expr="."/>
+                    </value>
+                </reference>
+            </references>
+        </mapping>
+        <mapping match="s:CategoryScheme/c:Name[@xml:lang='en']">
+            <references persist="true">
+                <reference>
+                    <name>
+                        <literal expr="category_scheme.name"/>
+                    </name>
+                    <value>
+                        <extract expr="."/>
+                    </value>
+                </reference>
+            </references>
+        </mapping>
+        <mapping match="s:Category/c:Name[@xml:lang='en']">
+            <references persist="true">
+                <reference>
+                    <name>
+                        <literal expr="category.name"/>
+                    </name>
+                    <value>
+                        <extract expr="."/>
+                    </value>
+                </reference>
+            </references>
+        </mapping>
+    </reference-content-map>
+
+    <feature-map multi-feature-construction="true">
+        <mapping match="s:Dataflow">
+            <feature-type>
+                <literal expr="Dataflow"/>
+            </feature-type>
+            <attributes>
+                <attribute>
+                    <name>
+                        <literal expr="Dataflow.id"/>
+                    </name>
+                    <value>
+                        <extract expr="@id"/>
+                    </value>
+                </attribute>
+                <attribute>
+                    <name>
+                        <literal expr="Dataflow.name"/>
+                    </name>
+                    <value>
+                        <refexpr expr="dataflow.name"/>
+                    </value>
+                </attribute>
+            </attributes>
+        </mapping>
+        <mapping match="s:CategoryScheme">
+            <feature-type>
+                <literal expr="CategoryScheme"/>
+            </feature-type>
+            <attributes>
+                <attribute>
+                    <name>
+                        <literal expr="xml_id"/>
+                    </name>
+                    <value>
+                        <refexpr expr="xml_id"/>
+                    </value>
+                </attribute>
+                <attribute>
+                    <name>
+                        <literal expr="CategoryScheme.id"/>
+                    </name>
+                    <value>
+                        <extract expr="@id"/>
+                    </value>
+                </attribute>
+                <attribute>
+                    <name>
+                        <literal expr="CategoryScheme.name"/>
+                    </name>
+                    <value>
+                        <refexpr expr="category_scheme.name"/>
+                    </value>
+                </attribute>
+                <attribute>
+                    <name>
+                        <literal expr="CategoryScheme.dissemination_perspective_id"/>
+                    </name>
+                    <value>
+                        <refexpr expr="category_scheme.DISSEMINATION_PERSPECTIVE_ID"/>
+                    </value>
+                </attribute>
+            </attributes>
+        </mapping>
+        <mapping match="s:Category">
+            <feature-type>
+                <literal expr="Category"/>
+            </feature-type>
+            <attributes>
+                <attribute>
+                    <name>
+                        <literal expr="xml_parent_id"/>
+                    </name>
+                    <value>
+                        <refexpr expr="xml_parent_id"/>
+                    </value>
+                </attribute>
+                <attribute>
+                    <name>
+                        <literal expr="xml_id"/>
+                    </name>
+                    <value>
+                        <refexpr expr="xml_id"/>
+                    </value>
+                </attribute>
+                <attribute>
+                    <name>
+                        <literal expr="CategoryScheme.id"/>
+                    </name>
+                    <value>
+                        <refexpr expr="category_scheme.id"/>
+                    </value>
+                </attribute>
+                <attribute>
+                    <name>
+                        <literal expr="CategoryScheme.dissemination_perspective_id"/>
+                    </name>
+                    <value>
+                        <refexpr expr="category_scheme.DISSEMINATION_PERSPECTIVE_ID"/>
+                    </value>
+                </attribute>
+                <attribute>
+                    <name>
+                        <literal expr="Category.name"/>
+                    </name>
+                    <value>
+                        <refexpr expr="category.name"/>
+                    </value>
+                </attribute>
+                <attribute>
+                    <name>
+                        <literal expr="Category.id"/>
+                    </name>
+                    <value>
+                        <extract expr="@id"/>
+                    </value>
+                </attribute>
+                <attribute>
+                    <name>
+                        <literal expr="Category.urn"/>
+                    </name>
+                    <value>
+                        <extract expr="@urn"/>
+                    </value>
+                </attribute>
+            </attributes>
+        </mapping>
+        <mapping match="s:Categorisation">
+            <feature-type>
+                <literal expr="Categorisation"/>
+            </feature-type>
+            <attributes>
+                <attribute>
+                    <name>
+                        <literal expr="Categorisation.id"/>
+                    </name>
+                    <value>
+                        <extract expr="@id"/>
+                    </value>
+                </attribute>
+                <attribute>
+                    <name>
+                        <literal expr="Categorisation.dissemination_perspective_id"/>
+                    </name>
+                    <value>
+                        <refexpr expr="categorisation.DISSEMINATION_PERSPECTIVE_ID"/>
+                    </value>
+                </attribute>
+            </attributes>
+        </mapping>
+
+    </feature-map>
+    <feature-content-map>
+        <mapping match="Categorisation/Source/Ref">
+            <attributes>
+                <attribute>
+                    <name>
+                        <literal expr="Categorisation."/>
+                        <matched expr="local-name" ancestor="parent"/>
+                        <literal expr=".id"/>
+                    </name>
+                    <value>
+                        <extract expr="@id"/>
+                    </value>
+                </attribute>
+                <attribute>
+                    <name>
+                        <literal expr="Categorisation."/>
+                        <matched expr="local-name" ancestor="parent"/>
+                        <literal expr=".class"/>
+                    </name>
+                    <value>
+                        <extract expr="@class"/>
+                    </value>
+                </attribute>
+            </attributes>
+        </mapping>
+        <mapping match="Categorisation/Target/Ref">
+            <attributes>
+                <attribute>
+                    <name>
+                        <literal expr="Categorisation."/>
+                        <matched expr="local-name" ancestor="parent"/>
+                        <literal expr=".id"/>
+                    </name>
+                    <value>
+                        <extract expr="@id"/>
+                    </value>
+                </attribute>
+                <attribute>
+                    <name>
+                        <literal expr="Categorisation."/>
+                        <matched expr="local-name" ancestor="parent"/>
+                        <literal expr=".class"/>
+                    </name>
+                    <value>
+                        <extract expr="@class"/>
+                    </value>
+                </attribute>
+                <attribute>
+                    <name>
+                        <literal expr="Categorisation.Target.urn"/>
+                    </name>
+                    <value>
+                        <literal expr="urn:sdmx:org.sdmx.infomodel."/>
+                        <extract expr="@package"/>
+                        <literal expr="."/>
+                        <extract expr="@class"/>
+                        <literal expr="="/>
+                        <extract expr="@agencyID"/>
+                        <literal expr=":"/>
+                        <extract expr="@maintainableParentID"/>
+                        <literal expr="("/>
+                        <extract expr="@maintainableParentVersion"/>
+                        <literal expr=")."/>
+                        <extract expr="@id"/>
+                    </value>
+                </attribute>
+            </attributes>
+        </mapping>
+    </feature-content-map>
+</xfMap>

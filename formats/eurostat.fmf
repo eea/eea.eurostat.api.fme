@@ -1,0 +1,294 @@
+DEFAULT_MACRO FORMAT_SHORT_NAME EEA.EUROSTAT.EUROSTAT
+
+DEFAULT_MACRO FEATURE_TYPE_NAME FILE_NAME
+DEFAULT_MACRO DELIMITER <comma>
+DEFAULT_MACRO FIELD_NAMES_LINE 1
+DEFAULT_MACRO DATA_START_LINE 2
+DEFAULT_MACRO READ_SKIPPED_LINES No
+DEFAULT_MACRO SKIP_DUPLICATE_DELIMITERS No
+DEFAULT_MACRO FIELD_QUALIFIER_CHARACTER <quote>
+DEFAULT_MACRO FIELD_QUALIFIER_ESCAPE_CHARACTER <quote>
+DEFAULT_MACRO TRIM_FIELD_NAME_QUALIFIERS Yes
+DEFAULT_MACRO CASE_SENSITIVE_FIELD_NAMES Yes
+DEFAULT_MACRO ENFORCE_STRICT_SCHEMA No
+DEFAULT_MACRO TRIM_FIELD_VALUE_QUALIFIERS Yes
+DEFAULT_MACRO ENCODING UTF-8
+DEFAULT_MACRO PRESERVE_SOURCE_ENCODING No
+! DEFAULT_MACRO SCAN_MAX_ROWS 10000
+DEFAULT_MACRO SCAN_TYPES Yes
+DEFAULT_MACRO SCAN_ADDITIONAL_FIELDS No
+DEFAULT_MACRO TYPE_ATTRIBUTE_HANDLING STANDARD_TYPES
+DEFAULT_MACRO STRING_TYPE_ATTRIBUTE_HANDLING STANDARD_TYPES
+DEFAULT_MACRO DATE_INPUT_FORMAT %d/%m/%y2099 %H:%M:%S$
+DEFAULT_MACRO DATE_OUTPUT_FORMAT %d/%m/%y2099 %H:%M:%S$
+DEFAULT_MACRO SCHEMA
+DEFAULT_MACRO USE_CUSTOM_SCHEMA No
+DEFAULT_MACRO TRIM_FIELD_NAME_WHITESPACE Yes
+DEFAULT_MACRO TRIM_FEATURE_TYPE_NAME Yes
+DEFAULT_MACRO REPLACE_ATTR_NAME_INVALID_CHARS No
+DEFAULT_MACRO READ_EMPTY_VALUES_AS Null
+
+DEFAULT_MACRO START_PERIOD 
+DEFAULT_MACRO END_PERIOD 
+
+! Syntax: SOURCE_READER <READER NAME> [<PARM NAME> <PARM_VALUE>] [[-]<Schema Keyword> <Schema Macro|Constant Value>]
+! This directive specifies the name of the reader used to drive the generation of
+! a mapping file/workspace. It also is where parameters specific to how the reader
+! is used are specified.
+
+DEFAULT_MACRO SUPPORTED_READER_ARCHIVE_EXTENSIONS csv.gz,txt.gz
+
+SOURCE_READER EEA.EUROSTAT.EUROSTAT \
+   -FEATURE_TYPE_NAME "$(FEATURE_TYPE_NAME)" \
+   -DELIMITER "$(DELIMITER)" \
+   -FIELD_NAMES_LINE "$(FIELD_NAMES_LINE)" \
+   -DATA_START_LINE "$(DATA_START_LINE)" \
+   -READ_SKIPPED_LINES "$(READ_SKIPPED_LINES)" \
+   -SKIP_DUPLICATE_DELIMITERS "$(SKIP_DUPLICATE_DELIMITERS)" \
+   -FIELD_QUALIFIER_CHARACTER "$(FIELD_QUALIFIER_CHARACTER)" \
+   -FIELD_QUALIFIER_ESCAPE_CHARACTER "$(FIELD_QUALIFIER_ESCAPE_CHARACTER)" \
+   -TRIM_FIELD_NAME_QUALIFIERS "$(TRIM_FIELD_NAME_QUALIFIERS)" \
+   -CASE_SENSITIVE_FIELD_NAMES "$(CASE_SENSITIVE_FIELD_NAMES)" \
+   -CASE_ENFORCE_STRICT_SCHEMA "$(ENFORCE_STRICT_SCHEMA)" \
+   -TRIM_FIELD_VALUE_QUALIFIERS "$(TRIM_FIELD_VALUE_QUALIFIERS)" \
+   -ENCODING "$(ENCODING)" \
+   -PRESERVE_SOURCE_ENCODING "$(PRESERVE_SOURCE_ENCODING)" \
+   -SCAN_TYPES "$(SCAN_TYPES)" \
+   -SCAN_ADDITIONAL_FIELDS "$(SCAN_ADDITIONAL_FIELDS)" \
+   -DATE_INPUT_FORMAT "$(DATE_INPUT_FORMAT)" \
+   -SCHEMA "$(SCHEMA)" \
+   -TRIM_FIELD_NAME_WHITESPACE "$(TRIM_FIELD_NAME_WHITESPACE)" \
+   -TRIM_FEATURE_TYPE_NAME "$(TRIM_FEATURE_TYPE_NAME)" \
+   -REPLACE_ATTR_NAME_INVALID_CHARS "$(REPLACE_ATTR_NAME_INVALID_CHARS)" \
+   -READ_EMPTY_VALUES_AS "$(READ_EMPTY_VALUES_AS)" \
+   -TYPE_ATTRIBUTE_HANDLING "$(TYPE_ATTRIBUTE_HANDLING)" \
+   -STRING_TYPE_ATTRIBUTE_HANDLING "$(STRING_TYPE_ATTRIBUTE_HANDLING)" \
+   EXPOSED_ATTRS "$($(FORMAT_SHORT_NAME)_EXPOSE_FORMAT_ATTRS)"
+
+
+FORMAT_NAME EEA.EUROSTAT.EUROSTAT
+FORMAT_TYPE DYNAMIC
+DYNAMIC_LIBRARY csv2
+
+
+GEOMETRY_ATTRIBUTE_PREFIX csv_type
+
+SCAN_PREFER_UNSIGNED_TYPES_FOR_INTEGERS no
+
+SCAN_FOR_INTEGER_CONTAINER_TYPES yes
+
+! ----------------------------------------------------------------------
+! Added support for boolean type PR#13332
+SCAN_SUPPORT_BOOL_TYPE yes
+
+! ----------------------------------------------------------------------
+! Added support for null types PR#38295
+SCAN_SUPPORT_NULL_AND_EMPTY_TYPES yes
+
+
+SOURCE_DATASET \"$[SourceDataset]\"
+
+SOURCE_PREAMBLE
+GUI FILE_OR_URL SourceDataset NO_SWIZZLER Select a Dataflow
+DEFAULT_MACRO WB_KEYWORD EUROSTAT
+
+FACTORY_DEF * TeeFactory                                       \
+    FACTORY_NAME $[WB_KEYWORD]_ExamplePipeLine                 \ 
+    INPUT  FEATURE_TYPE *                                      \
+    OUTPUT FEATURE_TYPE *                                      \
+        @SupplyAttributes(eurostat_type,@Value(csv_type))
+
+END_SOURCE_PREAMBLE
+
+WORKBENCH_SOURCE_PREAMBLE
+END_WORKBENCH_SOURCE_PREAMBLE
+
+SOURCE_SETTINGS
+
+DEFAULT_VALUE TRIM_FEATURE_TYPE_NAME $(TRIM_FEATURE_TYPE_NAME)
+DEFAULT_VALUE REPLACE_ATTR_NAME_INVALID_CHARS $(REPLACE_ATTR_NAME_INVALID_CHARS)
+DEFAULT_VALUE SUPPORTED_READER_ARCHIVE_EXTENSIONS $(SUPPORTED_READER_ARCHIVE_EXTENSIONS)
+DEFAULT_VALUE FEATURE_TYPE_NAME $(FEATURE_TYPE_NAME)
+DEFAULT_VALUE DELIMITER $(DELIMITER)
+DEFAULT_VALUE FIELD_NAMES_LINE $(FIELD_NAMES_LINE)
+DEFAULT_VALUE SKIP_DUPLICATE_DELIMITERS $(SKIP_DUPLICATE_DELIMITERS)
+DEFAULT_VALUE FIELD_QUALIFIER_CHARACTER $(FIELD_QUALIFIER_CHARACTER)
+DEFAULT_VALUE FIELD_QUALIFIER_ESCAPE_CHARACTER $(FIELD_QUALIFIER_ESCAPE_CHARACTER)
+DEFAULT_VALUE TRIM_FIELD_NAME_QUALIFIERS $(TRIM_FIELD_NAME_QUALIFIERS)
+DEFAULT_VALUE CASE_SENSITIVE_FIELD_NAMES $(CASE_SENSITIVE_FIELD_NAMES)
+DEFAULT_VALUE ENFORCE_STRICT_SCHEMA $(ENFORCE_STRICT_SCHEMA)
+DEFAULT_VALUE TRIM_FIELD_NAME_WHITESPACE $(TRIM_FIELD_NAME_WHITESPACE)
+DEFAULT_VALUE READ_EMPTY_VALUES_AS $(READ_EMPTY_VALUES_AS)
+DEFAULT_VALUE TRIM_FIELD_VALUE_QUALIFIERS $(TRIM_FIELD_VALUE_QUALIFIERS)
+DEFAULT_VALUE ENCODING $(ENCODING)
+DEFAULT_VALUE PRESERVE_SOURCE_ENCODING $(PRESERVE_SOURCE_ENCODING)
+DEFAULT_VALUE READ_SKIPPED_LINES $(READ_SKIPPED_LINES)
+DEFAULT_VALUE SCAN_MAX_ROWS $(SCAN_MAX_ROWS)
+DEFAULT_VALUE SCAN_TYPES $(SCAN_TYPES)
+DEFAULT_VALUE TYPE_ATTRIBUTE_HANDLING $(TYPE_ATTRIBUTE_HANDLING)
+DEFAULT_VALUE STRING_TYPE_ATTRIBUTE_HANDLING $(STRING_TYPE_ATTRIBUTE_HANDLING)
+DEFAULT_VALUE DATE_INPUT_FORMAT $(DATE_INPUT_FORMAT)
+DEFAULT_VALUE SCAN_ADDITIONAL_FIELDS $(SCAN_ADDITIONAL_FIELDS)
+-DEFAULT_VALUE USE_CUSTOM_SCHEMA $(USE_CUSTOM_SCHEMA)
+DEFAULT_VALUE QUERY_FEATURE_TYPES_FOR_MERGE_FILTERS Yes
+DEFAULT_VALUE CHUNK_SIZE 100000
+DEFAULT_VALUE EXPOSE_ATTRS_GROUP $(EXPOSE_ATTRS_GROUP)
+-GUI DISCLOSUREGROUP EXPOSE_ATTRS_GROUP $(FORMAT_SHORT_NAME)_EXPOSE_FORMAT_ATTRS Schema Attributes
+-DEFAULT_VALUE $(FORMAT_SHORT_NAME)_EXPOSE_FORMAT_ATTRS ""
+-GUI OPTIONAL EXPOSED_ATTRS $(FORMAT_SHORT_NAME)_EXPOSE_FORMAT_ATTRS $(FORMAT_SHORT_NAME)%$(FMEGEN_DIRECTION) Additional Attributes to Expose:
+
+END_SOURCE_SETTINGS
+
+
+DESTINATION_PREAMBLE
+END_DESTINATION_PREAMBLE
+
+
+DESTINATION_SETTINGS
+
+END_DESTINATION_SETTINGS
+
+! No dataset.
+DESTINATION_DATASET \"\"
+
+PREAMBLE
+FME_MINIMUM_BUILD 21222
+END_PREAMBLE
+
+GEOMETRY_TYPE_FIELD csv_type
+GENERICIZE_GEOMTYPE_ATTR_NAME csv_type
+
+GEOM_MAP csv_feature_table fme_feature_table
+GEOM_MAP csv_none          fme_no_geom
+GEOM_MAP csv_point         fme_point
+GEOM_MAP csv_none          fme_line
+GEOM_MAP csv_none          fme_polygon
+GEOM_MAP csv_none          fme_text
+GEOM_MAP csv_none          fme_ellipse
+GEOM_MAP csv_none          fme_arc
+GEOM_MAP csv_none          fme_rectangle
+GEOM_MAP csv_none          fme_rounded_rectangle
+GEOM_MAP fme_no_map        fme_no_geom
+GEOM_MAP fme_no_map        fme_no_map
+GEOM_MAP csv_none          fme_collection
+
+ATTR_TYPE_MAP                                                     \
+                string                 fme_buffer                 \
+                string                 fme_binarybuffer           \
+                string                 fme_xml                    \
+                string                 fme_json                   \
+                varchar(width)         fme_varchar(width)         \
+                varchar(width)         fme_varbinary(width)       \
+                varchar(width)         fme_char(width)            \
+                varchar(width)         fme_binary(width)          \
+                datetime               fme_datetime               \
+                time                   fme_time                   \
+                date                   fme_date                   \
+                string                 fme_real64                 \
+                real64                 fme_real64                 \
+                x_coordinate           fme_real64                 \
+                y_coordinate           fme_real64                 \
+                z_coordinate           fme_real64                 \
+                string                 fme_real32                 \
+                real32                 fme_real32                 \
+                string                 fme_int64                  \
+                int64                  fme_int64                  \
+                string                 fme_int32                  \
+                int32                  fme_int32                  \
+                string                 fme_int16                  \
+                int16                  fme_int16                  \
+                string                 fme_int8                   \
+                int8                   fme_int8                   \
+                string                 fme_uint64                 \
+                uint64                 fme_uint64                 \
+                string                 fme_uint32                 \
+                uint32                 fme_uint32                 \
+                string                 fme_uint16                 \
+                uint16                 fme_uint16                 \
+                string                 fme_uint8                  \
+                uint8                  fme_uint8                  \
+                string                 fme_boolean                \
+                boolean                fme_boolean                \
+                number(width,decimal)  fme_decimal(width,decimal)
+
+FORMAT_PARAMETER DEFAULT_ATTR_TYPE string
+
+ATTRIBUTE_CASE ANY
+FEATURE_TYPE_CASE ANY
+
+ATTRIBUTE_LENGTH 512
+FEATURE_TYPE_LENGTH 512
+! BUG#77117 Fixed feature type names with '.' not being truncated properly
+FEATURE_TYPE_LENGTH_INCLUDES_PREFIX dummyValue
+
+! Allow setting an attribute as the row identifier.
+WORKBENCH_ATTR_INDEX_TYPES RowID
+
+
+MACRO SourceExposableAttrs
+
+MACRO DestExposableAttrs
+
+INCLUDE [if {"$(FMEGEN_DIRECTION)" == "Source"}                               \
+         {                                                                    \
+            puts {MACRO DestExposableAttrs};                                  \
+         }                                                                    \
+         else                                                                 \
+         {                                                                    \
+            puts {MACRO SourceExposableAttrs};                                \
+         }]
+
+WORKBENCH_EXPOSABLE_ATTRIBUTES                                                \
+   $(SourceExposableAttrs)                                                    \
+   $(DestExposableAttrs)                                                      \
+   csv_type                         TEXT
+
+CORR_LINE_TEMPLATE {FME_GEN_GROUP_NAME} csv_type {FME_GEN_GEOMETRY}
+DEF_LINE_BREAK ATTRIB_CHANGE
+
+DEFAULT_MACRO eurostat_CONFIGURATION_DEFLINE_TEMPLATE                        \
+    fme_feature_operation INSERT                                              \
+    fme_table_handling    USE_EXISTING
+
+INCLUDE [if {"$(FMEGEN_DIRECTION)" == "Source"} {                             \
+        puts {                                                                \
+            DEF_LINE_TEMPLATE {FME_GEN_GROUP_NAME}                            \
+        };                                                                    \
+    } else {                                                                  \
+        puts {                                                                \
+            DEF_LINE_TEMPLATE {FME_GEN_GROUP_NAME}                            \
+        };                                                                    \
+    }]
+
+INCLUDE [if {"$(FMEGEN_DIRECTION)" == "Source"} {                             \
+    puts { WORKBENCH_DEFLINE_PARMS                                            \
+    };                                                                        \
+} else {                                                                      \
+    puts { WORKBENCH_DEFLINE_PARMS                                            \
+    "GUI OPTIONAL TEXT eurostat_geom_column Spatial Column:" ""               \
+    };                                                                        \
+}]
+
+! -----------------------------------------------------------------------------
+! The list of words that are not allowed to be attributes
+! TODO: All format attributes should be included here.
+DEST_ILLEGAL_ATTR_LIST                                   \
+    csv_type text                                        \
+    $(CONFIGURATION_ILLEGAL_ATTR_LIST)
+
+! ------------------------------------------------------------------------------
+FORMAT_PARAMETER NETWORK_AUTHENTICATION NO
+FORMAT_PARAMETER NETWORK_PROXY NO
+
+FORMAT_PARAMETER FEATURE_TYPE_NAME Table
+FORMAT_PARAMETER FEATURE_TYPE_DEFAULT_NAME Table1
+
+!-------------------------------------------------------------------------------
+! ALL: Reader always returns all available attributes for the feature type.
+! DEFLINE: Reader checks DEF lines for user attributes defined on the feature type,
+!  and only returns those attributes. Useful for readers that can improve
+!  performance by selectively reading attributes.
+FORMAT_PARAMETER ATTRIBUTE_READING DEFLINE
+
+FORMAT_PARAMETER START_PERIOD $(START_PERIOD)
+FORMAT_PARAMETER END_PERIOD $(END_PERIOD)

@@ -1,0 +1,17 @@
+author: {email: discomap@eea.europa.eu, name: EEA}
+description: Eurostat TODO
+fpkg_version: 1
+minimum_fme_build: 21222
+name: Eurostat
+package_content:
+  formats:
+  - {name: eurostat}
+  python_packages:
+  - {name: fme-eurostat}
+  web_filesystems:
+  - {name: Eurostat}
+  web_services:
+  - {name: Eurostat_v1.xml}
+publisher_uid: eea
+uid: eurostat
+version: 0.1.3
