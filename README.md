@@ -23,6 +23,5 @@ The reader will allow you to pick 'one' dataflow.
 
 FME Feature Types are defined by the dataflow chosen.
 
-<!--### See also
-For instructions and more information: [Package Homepage](--edit--https://eea.github.io/eea.reportnet3.api.fme/).
--->
+### See also
+For instructions and more information: [Package Homepage](https://eea.github.io/eea.eurostat.api.fme/).
