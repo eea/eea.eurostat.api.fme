@@ -13,8 +13,9 @@ To choose a dataflow:
 - Browse Eurostat (eea.eurostat)
 - Create or choose a web-connection.
 - Fill in the parameters according to your needs.
-  
-The Eurostat Reader checks which dataflows are available. Browse through the catalogs untill the desired dataflow is found.
+
+The Eurostat Reader checks which dataflows are available. Browse through the catalogs until the desired dataflow is found.
+
 Double click the dataflow or select it and click on "ok".
 
 The reader will allow you to pick 'one' dataflow.
