@@ -6,7 +6,7 @@
 - [Reader Parameters](./reader-parameters.md)
 - [User Attributes](./user-attributes.md)
   
-<!--- - [Reader Feature Type Parameters](./reader-feature-type-param.md) --->
-<!--# Advanced
+
+# Advanced
+- [Dynamic Dataset URL](./dynamic-dataset-url.md)
 - [Version Info](./version.md)
--->
