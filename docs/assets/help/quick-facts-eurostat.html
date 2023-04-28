@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Quick Facts - Help Documentation for the Eurostat FME Package</title>
+        <title>Quick Facts - Help Documentation for the Eurostat FME Package [1.0.0]</title>
 
 
         <!-- Custom HTML head -->
@@ -81,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="overview.html">Overview</a></li><li class="chapter-item expanded "><a href="quick-facts-eurostat.html" class="active"><strong aria-hidden="true">1.</strong> Quick Facts</a></li><li class="chapter-item expanded "><a href="feature-representation.html"><strong aria-hidden="true">2.</strong> Feature Representation</a></li><li class="chapter-item expanded "><a href="reader-parameters.html"><strong aria-hidden="true">3.</strong> Reader Parameters</a></li><li class="chapter-item expanded "><a href="reader-feature-type-param.html"><strong aria-hidden="true">4.</strong> Reader Feature Type Parameters</a></li><li class="chapter-item expanded "><a href="user-attributes.html"><strong aria-hidden="true">5.</strong> User Attributes</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="overview.html">Overview</a></li><li class="chapter-item expanded "><a href="quick-facts-eurostat.html" class="active"><strong aria-hidden="true">1.</strong> Quick Facts</a></li><li class="chapter-item expanded "><a href="feature-representation.html"><strong aria-hidden="true">2.</strong> Feature Representation</a></li><li class="chapter-item expanded "><a href="reader-parameters.html"><strong aria-hidden="true">3.</strong> Reader Parameters</a></li><li class="chapter-item expanded "><a href="user-attributes.html"><strong aria-hidden="true">4.</strong> User Attributes</a></li><li class="chapter-item expanded affix "><li class="part-title">Advanced</li><li class="chapter-item expanded "><a href="dynamic-dataset-url.html"><strong aria-hidden="true">5.</strong> Dynamic Dataset URL</a></li><li class="chapter-item expanded "><a href="version.html"><strong aria-hidden="true">6.</strong> Version Info</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -110,7 +110,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Help Documentation for the Eurostat FME Package</h1>
+                    <h1 class="menu-title">Help Documentation for the Eurostat FME Package [1.0.0]</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -152,40 +152,41 @@
 <tr><td>Dataset Type</td><td>None</td></tr>
 <tr><td>Feature Type</td><td>Dataflow name</td></tr>
 <tr><td>Typical File Extensions</td><td>Not applicable</td></tr>
-<tr><td>Automated Translation Support</td><td>???</td></tr>
-<tr><td>User-Defined Attributes</td><td>???</td></tr>
-<tr><td>Coordinate System Support</td><td>Yes</td></tr>
-<tr><td>Generic Color Support</td><td>No</td></tr>
-<tr><td>Spatial Index</td><td>No</td></tr>
-<tr><td>Schema Required</td><td>???</td></tr>
-<tr><td>Transaction Support</td><td>???</td></tr>
-<tr><td>Geometry Type</td><td>???</td></tr>
 <tr><td>Encoding Support</td><td>UTF-8</td></tr>
 </tbody></table>
-</div>
-<p>Geometry Support???:</p>
-<div class="table-wrapper"><table><thead><tr><th>Geometry</th><th>Supported?</th></tr></thead><tbody>
-<tr><td>aggregate</td><td>yes<sup class="footnote-reference"><a href="#1">1</a></sup></td></tr>
-<tr><td>circles</td><td>no</td></tr>
-<tr><td>circular arc</td><td>no</td></tr>
-<tr><td>donut polygon</td><td>yes</td></tr>
-<tr><td>elliptical arc</td><td>no</td></tr>
-<tr><td>ellipses</td><td>no</td></tr>
-<tr><td>line</td><td>yes</td></tr>
-<tr><td>none</td><td>yes</td></tr>
-<tr><td>point</td><td>yes</td></tr>
-<tr><td>polygon</td><td>yes</td></tr>
-<tr><td>raster</td><td>no</td></tr>
-<tr><td>solid</td><td>no</td></tr>
-<tr><td>surface</td><td>no</td></tr>
-<tr><td>text</td><td>no</td></tr>
-<tr><td>z values</td><td>yes</td></tr>
-</tbody></table>
-</div>
-<div class="footnote-definition" id="1"><sup class="footnote-definition-label">1</sup>
-<p>Only homogeneous aggregates (MultiPoint, MultiLine...) but not heterogeneous ones.</p>
-</div>
+</div><!--
+| Automated Translation Support | ???                              |
+| User-Defined Attributes       | ???                              |
+| Coordinate System Support     | Yes                              |
+| Generic Color Support         | No                               |
+| Spatial Index                 | No                               |
+| Schema Required               | ???                              |
+| Transaction Support           | ???                              |
+| Geometry Type                 | ???                              |
+-->
+<!--
+Geometry Support???:
 
+| Geometry       | Supported? |
+| -------------- | ---------- |
+| aggregate      | yes[^1]    |
+| circles        | no         |
+| circular arc   | no         |
+| donut polygon  | yes        |
+| elliptical arc | no         |
+| ellipses       | no         |
+| line           | yes        |
+| none           | yes        |
+| point          | yes        |
+| polygon        | yes        |
+| raster         | no         |
+| solid          | no         |
+| surface        | no         |
+| text           | no         |
+| z values       | yes        |
+
+[^1]: Only homogeneous aggregates (MultiPoint, MultiLine...) but not heterogeneous ones.
+-->
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
@@ -215,22 +216,6 @@
 
         </div>
 
-        <!-- Livereload script (if served using the cli tool) -->
-        <script type="text/javascript">
-            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
-            const socket = new WebSocket(wsAddress);
-            socket.onmessage = function (event) {
-                if (event.data === "reload") {
-                    socket.close();
-                    location.reload();
-                }
-            };
-
-            window.onbeforeunload = function() {
-                socket.close();
-            }
-        </script>
 
 
 
