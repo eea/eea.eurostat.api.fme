@@ -54,7 +54,7 @@ def update_helpdoc_title(new_version):
     if not old_title == new_title:
         book_info['book']['title'] = new_title
         print('book.toml', old_title, '->', new_title)
-        with open(r'doc\help\book.toml', 'wb') as fout:
+        with open(r'docs\help\book.toml', 'wb') as fout:
             tomli_w.dump(book_info, fout)
 
 if __name__ == '__main__':
