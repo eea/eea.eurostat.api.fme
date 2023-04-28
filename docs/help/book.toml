@@ -5,4 +5,4 @@ authors = [
 language = "en"
 multilingual = false
 src = "src"
-title = "Help Documentation for the Eurostat FME Package [0.1.3]"
+title = "Help Documentation for the Eurostat FME Package [1.0.0]"
