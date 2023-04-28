@@ -1,7 +1,7 @@
 author: {email: discomap@eea.europa.eu, name: EEA}
-description: Eurostat TODO
+description: Access to Eurostat statistics data
 fpkg_version: 1
-minimum_fme_build: 21222
+minimum_fme_build: 22623
 name: Eurostat
 package_content:
   formats:
@@ -14,4 +14,4 @@ package_content:
   - {name: Eurostat_v1.xml}
 publisher_uid: eea
 uid: eurostat
-version: 0.1.3
+version: 1.0.0
