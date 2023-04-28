@@ -46,7 +46,7 @@ def update_package_yml(new_version):
         
 def update_helpdoc_title(new_version):
     book_info = dict()
-    with open(r'doc\help\book.toml', 'rb') as fin:
+    with open(r'docs\help\book.toml', 'rb') as fin:
         book_info = tomli.load(fin)
     old_title = book_info.get('book', {}).get('title')
     base_title = re.sub(r'\[\d+\.\d+\.\d+\]', '', old_title).strip()
