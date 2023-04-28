@@ -33,3 +33,5 @@ include:
 exclude: 
     - .gitignore
     - Gemfile
+    - getting_started
+    - help
