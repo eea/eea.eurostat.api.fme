@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Reader Parameters - Help Documentation for the Eurostat FME Package</title>
+        <title>Reader Parameters - Help Documentation for the Eurostat FME Package [1.0.0]</title>
 
 
         <!-- Custom HTML head -->
@@ -81,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="overview.html">Overview</a></li><li class="chapter-item expanded "><a href="quick-facts-eurostat.html"><strong aria-hidden="true">1.</strong> Quick Facts</a></li><li class="chapter-item expanded "><a href="feature-representation.html"><strong aria-hidden="true">2.</strong> Feature Representation</a></li><li class="chapter-item expanded "><a href="reader-parameters.html" class="active"><strong aria-hidden="true">3.</strong> Reader Parameters</a></li><li class="chapter-item expanded "><a href="reader-feature-type-param.html"><strong aria-hidden="true">4.</strong> Reader Feature Type Parameters</a></li><li class="chapter-item expanded "><a href="user-attributes.html"><strong aria-hidden="true">5.</strong> User Attributes</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="overview.html">Overview</a></li><li class="chapter-item expanded "><a href="quick-facts-eurostat.html"><strong aria-hidden="true">1.</strong> Quick Facts</a></li><li class="chapter-item expanded "><a href="feature-representation.html"><strong aria-hidden="true">2.</strong> Feature Representation</a></li><li class="chapter-item expanded "><a href="reader-parameters.html" class="active"><strong aria-hidden="true">3.</strong> Reader Parameters</a></li><li class="chapter-item expanded "><a href="user-attributes.html"><strong aria-hidden="true">4.</strong> User Attributes</a></li><li class="chapter-item expanded affix "><li class="part-title">Advanced</li><li class="chapter-item expanded "><a href="dynamic-dataset-url.html"><strong aria-hidden="true">5.</strong> Dynamic Dataset URL</a></li><li class="chapter-item expanded "><a href="version.html"><strong aria-hidden="true">6.</strong> Version Info</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -110,7 +110,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Help Documentation for the Eurostat FME Package</h1>
+                    <h1 class="menu-title">Help Documentation for the Eurostat FME Package [1.0.0]</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -143,24 +143,41 @@
                 <div id="content" class="content">
                     <main>
                         <p>Eurostat Reader Parameters</p>
-<h3 id="dataset"><a class="header" href="#dataset">Dataset</a></h3>
-<p>To choose a dataset: </p>
+<h2 id="dataset--authentication"><a class="header" href="#dataset--authentication">Dataset / Authentication</a></h2>
+<h3 id="authentication"><a class="header" href="#authentication">Authentication:</a></h3>
 <ul>
 <li>Click on the down arrow on the right side of the dataset.</li>
 <li>Choose &quot;Select File From Web&quot;.</li>
 <li>Click on &quot;Browse Eurostat (eea.eurostat)&quot;.</li>
 </ul>
 <p><img src="./Images/SelectFileFromWeb.png" alt="SelectFileFromWeb.png" /></p>
-<p>A dialog window with a tree structure of folders categorizing the datasets will appear. Navigating through the folders will lead to a selectable dataset. 
+<p>A new dialog window with the parameters will appear. </p>
+<p><img src="./Images/Parameters.png" alt="Parameters.png" /></p>
+<p>The Eurostat connection is a mandatory parameter that must be set.</p>
+<p><img src="./Images/WebConnection.png" alt="WebConnection.png" /></p>
+<ul>
+<li>Web service: choose: <strong>Eurostat_v1 (eea.eurostat)</strong></li>
+<li>Connection name: choose a name of your choice.</li>
+<li>Agency: The agency determines from which agency data is read. Different Agencies contain different dataflows.</li>
+<li>Local Cache Folder: There are a lot of dataflows to choose from. To avoid loading the list every time the information is stored as cache. This parameter lets you decide where you want to store this cache.</li>
+<li>Expiry Time (Seconds): This parameter determines how long the cache should be saved.</li>
+<li>Verify SSL Certificates: If checked, the reader will verify SSL certificates. </li>
+</ul>
+<p>Once you've set up the webconnection. Click on &quot;OK&quot;.</p>
+<h3 id="choosing-a-dataflow"><a class="header" href="#choosing-a-dataflow">Choosing a Dataflow:</a></h3>
+<p>To select a dataflow navigating through the folders to the desired dataflow. 
 Only 1 dataset can be chosen at a time.</p>
 <p><img src="./Images/DataBrowser.png" alt="DataBrowser.png" /></p>
 <p>Select a dataset and click on &quot;ok&quot;.</p>
-<h2 id="parameters"><a class="header" href="#parameters">Parameters</a></h2>
+<p>You can use the Search function to quickly navigate to a dataflow you know the name of.</p>
+<h2 id="optional-extra-parameters"><a class="header" href="#optional-extra-parameters">Optional extra Parameters</a></h2>
+<p>The Eurostat API limits filters to 1.000.000 features. Due to the size of datasets and the fact that some filters include null observations this limit is reached quite often. If this occurs the logfile say that the request was to big after returning an error. 
+Sometimes using filters the request will force Eurostat to first create the file. It will be queued on their side and wont be added onto FME's canvas directly it will instead return an error. Reading the same data after a few minutes will result in the data being read. You can see when this occurs in the log when the result body xml includes a &quot;queued&quot; tag.</p>
 <h3 id="filter-on-time"><a class="header" href="#filter-on-time">Filter on time</a></h3>
 <p><strong>Optional.</strong> 
 Providing a value for Start Period will ensure that data with a Time_Period greater than or equal to the given value will be read.
 Providing a value for End Period will ensure that data with a Time_Period less than or equal to the given value will be read.
-Values should correspond to the format for Time_Period for the chosen DataFlow. <refer to suitable documentation></p>
+Values should correspond to the format for Time_Period for the chosen DataFlow. *1</p>
 <div class="table-wrapper"><table><thead><tr><th>Period</th><th>Format</th></tr></thead><tbody>
 <tr><td>Annual</td><td>YYYY-A1 or YYYY</td></tr>
 <tr><td>Semester</td><td>YYYY-S[1-2]</td></tr>
@@ -171,8 +188,11 @@ Values should correspond to the format for Time_Period for the chosen DataFlow. 
 <tr><td>Year interval</td><td>YYYY/P[01-99]Y</td></tr>
 </tbody></table>
 </div>
+<p>*1 The filter used on time period is very strict and can be hard to set properly since the dataflow itself doesn't specify what it accepts in the name. To see which format of filter is allowed it is suggested to look at the <a href="https://ec.europa.eu/eurostat/databrowser/">Databrowser</a> of Eurostat. 
+Here you can search for the corresponding dataflow either by name or code. The Databrowser will then refer to the &quot;Time Frequency&quot; to help you choose the correct format for filtering.</p>
+<p><img src="./Images/Timefilter.png" alt="TimeFilter.png" /></p>
 <h3 id="filter-on-first-n-and-last-n-observations"><a class="header" href="#filter-on-first-n-and-last-n-observations">Filter on first N and last N observations</a></h3>
-<p>Optional.<br />
+<p><strong>Optional.</strong> 
 This allows filtering data observations within a time series to limit the number of observations returned.
 Providing values will restrict the reader to only fetch the first N Observations and/or the last N Observations of the DataFlow with consideration taken to the optional Filter on time.</p>
 <ul>
@@ -182,9 +202,17 @@ Providing values will restrict the reader to only fetch the first N Observations
 <li>Both definitions may be applied e.g. to return the first and last observations in a series.</li>
 <li>If the filter is wrong, then a response is returned with no observation results.</li>
 </ul>
-<h3 id="expose-format-attributes-full-name"><a class="header" href="#expose-format-attributes-full-name">Expose format attributes full name</a></h3>
-<p>Ticking the box will lead to coded values in attributes being translated.
-Leaving the box unchecked will leave coded values as they are.</p>
+<p>Keep in mind that N observations does not equal N features. An observation is the unique combination of the codelists for a certain time period. 
+As an example: When First N observations is set to 1. The first 3 rows of this dataflow are given as a result. This since 2013 is the first observation. But in this case Partner makes them unique for that time period. Making all these a first 1 observation.</p>
+<div class="table-wrapper"><table><thead><tr><th>Freq</th><th style="text-align: left">Partner</th><th>Unit</th><th>geo</th><th>time_period</th><th style="text-align: right">obs_value</th></tr></thead><tbody>
+<tr><td>A</td><td style="text-align: left">UNK</td><td>NR</td><td>AT</td><td>2013</td><td style="text-align: right">0</td></tr>
+<tr><td>A</td><td style="text-align: left">TOTAL</td><td>NR</td><td>AT</td><td>2013</td><td style="text-align: right">54071</td></tr>
+<tr><td>A</td><td style="text-align: left">NEU27_2020_FOR</td><td>NR</td><td>AT</td><td>2013</td><td style="text-align: right">22505</td></tr>
+<tr><td>A</td><td style="text-align: left">UNK</td><td>NR</td><td>AT</td><td>2014</td><td style="text-align: right">4524</td></tr>
+</tbody></table>
+</div><!--- ### Expose format attributes full name --->
+<!--- Ticking the box will lead to coded values in attributes being translated. --->
+<!--- Leaving the box unchecked will leave coded values as they are. --->
 
                     </main>
 
@@ -194,7 +222,7 @@ Leaving the box unchecked will leave coded values as they are.</p>
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next" href="reader-feature-type-param.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="user-attributes.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -208,29 +236,13 @@ Leaving the box unchecked will leave coded values as they are.</p>
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next" href="reader-feature-type-param.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="user-attributes.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
 
         </div>
 
-        <!-- Livereload script (if served using the cli tool) -->
-        <script type="text/javascript">
-            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
-            const socket = new WebSocket(wsAddress);
-            socket.onmessage = function (event) {
-                if (event.data === "reload") {
-                    socket.close();
-                    location.reload();
-                }
-            };
-
-            window.onbeforeunload = function() {
-                socket.close();
-            }
-        </script>
 
 
 

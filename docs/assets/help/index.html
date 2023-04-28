@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Overview - Help Documentation for the Eurostat FME Package</title>
+        <title>Overview - Help Documentation for the Eurostat FME Package [1.0.0]</title>
 
 
         <!-- Custom HTML head -->
@@ -81,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="overview.html" class="active">Overview</a></li><li class="chapter-item expanded "><a href="quick-facts-eurostat.html"><strong aria-hidden="true">1.</strong> Quick Facts</a></li><li class="chapter-item expanded "><a href="feature-representation.html"><strong aria-hidden="true">2.</strong> Feature Representation</a></li><li class="chapter-item expanded "><a href="reader-parameters.html"><strong aria-hidden="true">3.</strong> Reader Parameters</a></li><li class="chapter-item expanded "><a href="reader-feature-type-param.html"><strong aria-hidden="true">4.</strong> Reader Feature Type Parameters</a></li><li class="chapter-item expanded "><a href="user-attributes.html"><strong aria-hidden="true">5.</strong> User Attributes</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="overview.html" class="active">Overview</a></li><li class="chapter-item expanded "><a href="quick-facts-eurostat.html"><strong aria-hidden="true">1.</strong> Quick Facts</a></li><li class="chapter-item expanded "><a href="feature-representation.html"><strong aria-hidden="true">2.</strong> Feature Representation</a></li><li class="chapter-item expanded "><a href="reader-parameters.html"><strong aria-hidden="true">3.</strong> Reader Parameters</a></li><li class="chapter-item expanded "><a href="user-attributes.html"><strong aria-hidden="true">4.</strong> User Attributes</a></li><li class="chapter-item expanded affix "><li class="part-title">Advanced</li><li class="chapter-item expanded "><a href="dynamic-dataset-url.html"><strong aria-hidden="true">5.</strong> Dynamic Dataset URL</a></li><li class="chapter-item expanded "><a href="version.html"><strong aria-hidden="true">6.</strong> Version Info</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -110,7 +110,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Help Documentation for the Eurostat FME Package</h1>
+                    <h1 class="menu-title">Help Documentation for the Eurostat FME Package [1.0.0]</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -143,24 +143,27 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="eurostat-eeaeurostat"><a class="header" href="#eurostat-eeaeurostat">Eurostat (eea.Eurostat)</a></h1>
-<p>This FME Package contains the Eurostat Reader introduced for FME 2022.</p>
-<p>Eurostat is the statistical office of the European Union, based in Luxembourg (LU). It publishes official, harmonised statistics on the European Union and the euro area, offering a comparable, reliable and objective portrayal of Europe's society and economy.</p>
-<p>A vast range of data is available for the EU as a whole, for Member States and in many cases also for candidate countries, EFTA members and other European countries, down to the level of regions and cities. All users may consult or download data and publications free of charge from the Eurostat web site. For more information on Eurostats policies and copyright rules: <a href="https://ec.europa.eu/eurostat/web/main/about-us/policies/copyright">Copyrights</a></p>
+<p>This FME Package contains the Eurostat Reader introduced for FME 2022.1.</p>
+<p>Eurostat is the statistical office of the European Union, based in Luxembourg (LU). It publishes official, harmonized statistics on the European Union and the euro area, offering a comparable, reliable and objective portrayal of Europe's society and economy.</p>
+<p>A vast range of data is available for the EU as a whole, for Member States and in many cases also for candidate countries, EFTA members and other European countries, down to the level of regions and cities. All users may consult or download data and publications free of charge from the Eurostat web site. For more information on Eurostats policies and copyright rules:
+https://ec.europa.eu/eurostat/web/main/about-us/policies/copyright</p>
+<!-- Copyrights](https://ec.europa.eu/eurostat/web/main/about-us/policies/copyright) --> 
 <h2 id="usage"><a class="header" href="#usage">Usage</a></h2>
-<p>To choose a dataset: </p>
+<p>To choose a dataflow: </p>
 <ul>
 <li>click on the down arrow on the right side.</li>
 <li>Select File From Web</li>
 <li>Browse Eurostat (eea.eurostat)</li>
+<li>Create or choose a web-connection.</li>
+<li>Fill in the parameters according to your needs.</li>
 </ul>
-<p>The Eurostat Reader checks which datasets (dataflows) are available. Browse through the catalogs untill the desired dataset is found.
-Double click the dataset or select it and click on &quot;ok&quot;.</p>
-<p>The reader will allow you to pick 'one' dataset.</p>
-<p>Optional filters can be set in the parameter options.</p>
-<p>FME Feature Types are defined by the dataset chosen.</p>
-<h3 id="see-also"><a class="header" href="#see-also">See also</a></h3>
-<p>For instructions and more information: <a href="--edit--https://eea.github.io/eea.reportnet3.api.fme/">Package Homepage</a>.</p>
-
+<p>The Eurostat Reader checks which dataflows are available. Browse through the catalogs until the desired dataflow is found.
+Double click the dataflow or select it and click on &quot;ok&quot;.</p>
+<p>The reader will allow you to pick 'one' dataflow.</p>
+<p>FME Feature Types are defined by the dataflow chosen.</p>
+<!--### See also
+For instructions and more information: [Package Homepage](--edit--https://eea.github.io/eea.reportnet3.api.fme/).
+-->
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
@@ -184,22 +187,6 @@ Double click the dataset or select it and click on &quot;ok&quot;.</p>
 
         </div>
 
-        <!-- Livereload script (if served using the cli tool) -->
-        <script type="text/javascript">
-            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
-            const socket = new WebSocket(wsAddress);
-            socket.onmessage = function (event) {
-                if (event.data === "reload") {
-                    socket.close();
-                    location.reload();
-                }
-            };
-
-            window.onbeforeunload = function() {
-                socket.close();
-            }
-        </script>
 
 
 
