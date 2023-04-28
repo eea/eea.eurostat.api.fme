@@ -8,7 +8,7 @@
 
 ## Commit
 
-[TODO_GITHUB_REPO@{{#include ../../../.commit_hash}}](https://github.com/eea/TODO_GITHUB_REPO/tree/{{#include ../../../.commit_hash}})
+[https://github.com/eea/eea.eurostat.api.fme@{{#include ../../../.commit_hash}}](https://github.com/eea/eea.eurostat.api.fme/tree/{{#include ../../../.commit_hash}})
 
 
 {{#include ../../../CHANGES.md}}
