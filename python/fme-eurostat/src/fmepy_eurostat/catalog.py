@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+import gzip
+import re
 from typing import List
 from fmeobjects import FMESession, FMEFeature, FMEFactoryPipeline
 from fmegeneral.fmelog import get_configured_logger
@@ -329,6 +331,7 @@ class EurostatFilesystem(IFMEWebFilesystem):
 
         params = {
             'format': 'SDMX-CSV'
+            , 'compressed': 'true'
         }
 
         if start_period and end_period:
@@ -366,8 +369,20 @@ class EurostatFilesystem(IFMEWebFilesystem):
             if not 'csv' in content_type.lower():
                 self._log.error(r.text)
                 raise Exception(r.text)
+            
+            content_disposition_filext = '_UNKNOWN_'
+            content_disposition = r.headers.get('Content-Disposition', '')
+            m = re.match(r'^attachment; filename="[^"]+(\.csv|\.csv\.gz)"$', content_disposition)
+            if m:
+                self._log.info('Response Header Content-Disposition was : `%s`', content_disposition)
+                content_disposition_filext = m.group(1)
+                self._log.info('File extension `%s` will be considered when deciding reading strategy', content_disposition_filext)
             with open(dst_filepath, 'wb') as f:
-                shutil.copyfileobj(r.raw, f)
+                fin = r.raw
+                if '.csv.gz' == content_disposition_filext:
+                    self._log.info('Reading response using gzip wrapper')
+                    fin = gzip.open(r.raw)
+                shutil.copyfileobj(fin, f)
 
 
     def downloadFolder(self, args):
