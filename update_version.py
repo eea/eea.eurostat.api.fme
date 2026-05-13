@@ -59,7 +59,7 @@ def update_helpdoc_title(new_version):
 
 if __name__ == '__main__':
     branch_name = git_branch()
-    m = re.match('v_(\d+)\.(\d+)\.(\d+)', branch_name)
+    m = re.match(r'v_(\d+)\.(\d+)\.(\d+)', branch_name)
     if not m:
         raise Exception(f'Please use a branch name that uses naming convention v_x.y.z when creating a distribution, current branch name is `{branch_name}`')
     version = '.'.join(m.groups())
