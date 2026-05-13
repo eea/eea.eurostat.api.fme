@@ -5,3 +5,4 @@ py37
 test
 tmp
 samples
+.python-version
