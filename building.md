@@ -27,7 +27,7 @@ cd eea.eurostat.api.fme
 git checkout -b v_1.0.2
 python update_version.py
 git log -1 --pretty=format:%H | Out-File -FilePath .commit_hash -Encoding ascii -NoNewline
-mdbook build docs\help -d ..\..\help\pkg-eurostat
+mdbook build docs\help -d .\help\pkg-eurostat
 Copy-Item -Path README.md -Destination formats/eurostat.md -Force
 python -m fme-packager pack .
 ```
